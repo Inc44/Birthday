@@ -1,0 +1,49 @@
+1 000 000
+cargo run --release
+Probability: 0.377051000
+Execution Time: 0.047 s
+
+1 000 000
+go build -o birthday birthday.go && ./birthday
+Probability: 0.378045000
+Execution Time: 0.105 s
+
+1 000 000
+python -OO birthday.py
+Probability: 0.377863000
+Execution Time: 49.983 s
+
+1 000 000
+python -OO birthday_numpy.py
+Probability: 0.377522000
+Execution Time: 24.099 s
+
+1 000 000
+birthday.ipynb
+Probability: 0.377997000
+Execution Time: 0.108 s
+
+1 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday
+Probability: 0.377329000
+Execution Time: 0.283 s
+
+1 000 000
+gcc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377326000
+Execution Time: 0.041 s
+
+1 000 000
+g++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377326000
+Execution Time: 0.044 s
+
+1 000 000
+zig cc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377326000
+Execution Time: 0.042 s
+
+1 000 000
+zig c++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377792000
+Execution Time: 0.050 s

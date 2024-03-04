@@ -1,0 +1,39 @@
+1 000 000 000
+cargo run --release
+Probability: 0.377547657
+Execution Time: 27.029 s
+
+1 000 000 000
+go build -o birthday birthday.go && ./birthday
+Probability: 0.377525452
+Execution Time: 104.314 s
+
+1 000 000 000
+birthday.ipynb
+Probability: 0.377520043
+Execution Time: 8.426 s
+
+1 000 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday
+Probability: 0.377489768
+Execution Time: 12.391 s
+
+1 000 000 000
+gcc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377660337
+Execution Time: 27.376 s
+
+1 000 000 000
+g++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377667596
+Execution Time: 27.524 s
+
+1 000 000 000
+zig cc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377664606
+Execution Time: 21.024 s
+
+1 000 000 000
+zig c++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377674839
+Execution Time: 21.054 s
