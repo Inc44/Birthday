@@ -62,6 +62,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `javac Birthday.java`
 - Execution: `java Birthday.java`
 
+#### OCaml
+- Compilation: `ocamlopt -I +unix -thread unix.cmxa threads.cmxa -o birthday birthday.ml`
+- Execution: `./birthday`
+
 ## License
 
 MIT
