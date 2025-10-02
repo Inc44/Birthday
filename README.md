@@ -58,6 +58,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig cc -o birthday birthday.c -Ofast`
 - Execution: `./birthday`
 
+#### Java
+- Compilation: `javac Birthday.java`
+- Execution: `java Birthday.java`
+
 ## License
 
 MIT
