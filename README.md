@@ -66,6 +66,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `ocamlopt -I +unix -thread unix.cmxa threads.cmxa -o birthday birthday.ml`
 - Execution: `./birthday`
 
+#### Zig
+- Compilation: `zig build-exe birthday.zig -O ReleaseFast`
+- Execution: `./birthday`
+
 ## License
 
 MIT
