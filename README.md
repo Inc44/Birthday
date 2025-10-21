@@ -70,6 +70,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig build-exe birthday.zig -O ReleaseFast`
 - Execution: `./birthday`
 
+#### OpenCL
+- Compilation: `cl birthday_opencl.c /I"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\include" /link "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib\OpenCL.lib"`
+- Execution: `./birthday_opencl`
+
 ## License
 
 MIT
