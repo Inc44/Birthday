@@ -2,18 +2,14 @@
 // g++ -o birthday birthday.c -Ofast && ./birthday
 // zig cc -o birthday birthday.c -Ofast && ./birthday
 // zig c++ -o birthday birthday.c -Ofast && ./birthday
-#include <pthread.h>
-
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include <time.h>
-
 #define DAYS_IN_YEAR 365
 #define NUM_THREADS 768
 #define PEOPLE 24
 #define TOTAL_SIMULATIONS 1000000
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 typedef struct {
 	int simulations;
 	int threadId;

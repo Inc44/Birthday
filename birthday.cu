@@ -1,13 +1,5 @@
 // nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday for GTX 1660 SUPER
 // nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday for RTX 4060 TI
-#include <curand_kernel.h>
-
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include <time.h>
-
 #define BLOCK_SIZE 32
 #define DAYS_IN_YEAR 365
 #define NUM_BLOCKS (NUM_THREADS / BLOCK_SIZE)
@@ -15,6 +7,10 @@
 // #define NUM_THREADS 2176 for RTX 4060 TI
 #define PEOPLE 24
 #define TOTAL_SIMULATIONS 1000000
+#include <curand_kernel.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 __global__ void simulate(int simulations,
 						 int* d_successCount,
 						 unsigned int currentTime) {
