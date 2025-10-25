@@ -70,12 +70,24 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig build-exe birthday.zig -O ReleaseFast`
 - Execution: `./birthday`
 
-#### OpenCL
-- Compilation: `cl birthday_opencl.c /I"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\include" /link "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib\OpenCL.lib"`
-- Execution: `./birthday_opencl`
-
 #### JavaScript
 - Execution: `node birthday.js`
+
+#### OpenCL Compiled as C++ using GNU Compiler
+- Compilation: `g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+- Execution: `./birthday_opencl
+
+#### OpenCL Compiled as C using GNU Compiler
+- Compilation: `gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+- Execution: `./birthday_opencl`
+
+#### OpenCL Compiled as C++ using Zig Compiler
+- Compilation: `zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+- Execution: `./birthday_opencl`
+
+#### OpenCL Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+- Execution: `./birthday_opencl`
 
 ## License
 

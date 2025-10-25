@@ -1,6 +1,9 @@
-// cl birthday_opencl.c /I"C:\Program Files
-// (x86)\Intel\oneAPI\compiler\latest\include" /link "C:\Program Files
-// (x86)\Intel\oneAPI\compiler\latest\lib\OpenCL.lib"
+// gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl
+// g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl
+// zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast &&
+// ./birthday_opencl
+// zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast &&
+// ./birthday_opencl
 #define CL_TARGET_OPENCL_VERSION 300
 #define BLOCK_SIZE 32
 #define DAYS_IN_YEAR 365
@@ -12,12 +15,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <windows.h>
 int main() {
+	struct timespec start, end;
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	unsigned int seed = time(NULL);
-	LARGE_INTEGER frequency, start, end;
-	QueryPerformanceFrequency(&frequency);
-	QueryPerformanceCounter(&start);
 	size_t block_size = (size_t)BLOCK_SIZE;
 	int days_in_year = DAYS_IN_YEAR;
 	int num_threads = NUM_THREADS;
@@ -36,7 +37,7 @@ int main() {
 	clGetPlatformIDs(1, &platform, NULL);
 	clGetDeviceIDs(platform, CL_DEVICE_TYPE_DEFAULT, 1, &device, NULL);
 	context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
-	queue = clCreateCommandQueue(context, device, 0, NULL);
+	queue = clCreateCommandQueueWithProperties(context, device, NULL, NULL);
 	const char* simulate =
 		"__kernel void simulate(int simulations,"
 		"					   __global int* d_successCount,"
@@ -89,9 +90,9 @@ int main() {
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;
 	printf("Probability: %.9f\n", probability);
-	QueryPerformanceCounter(&end);
+	clock_gettime(CLOCK_MONOTONIC, &end);
 	double elapsed =
-		(double)(end.QuadPart - start.QuadPart) / (double)frequency.QuadPart;
+		(end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
 	printf("Execution Time: %.3f s\n", elapsed);
 	free(h_successCount);
 	clReleaseMemObject(d_successCount);
