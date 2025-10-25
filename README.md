@@ -74,6 +74,9 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `cl birthday_opencl.c /I"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\include" /link "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib\OpenCL.lib"`
 - Execution: `./birthday_opencl`
 
+#### JavaScript
+- Execution: `node birthday.js`
+
 ## License
 
 MIT
