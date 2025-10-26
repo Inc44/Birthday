@@ -11,14 +11,14 @@ const ThreadData = struct {
 };
 fn simulate(data: ThreadData) void {
     const simulations_per_thread = data.simulations / NUM_THREADS;
-    const seed = @as(u64, @bitCast(std.time.timestamp())) ^ @as(u64, data.thread_id);
-    var rng = std.Random.DefaultPrng.init(seed);
-    const rand = rng.random();
+    const seed: u64 = @bitCast(std.time.timestamp());
+    var state: u32 = @truncate(seed ^ data.thread_id);
     var success_count: u32 = 0;
     for (0..simulations_per_thread) |_| {
         var birthdays = [_]u8{0} ** DAYS_IN_YEAR;
         for (0..PEOPLE) |_| {
-            const birthday = rand.intRangeAtMost(u16, 0, DAYS_IN_YEAR - 1);
+            state = state *% 1664525 +% 1013904223;
+            const birthday: u32 = state % DAYS_IN_YEAR;
             birthdays[birthday] += 1;
         }
         var exactly_two_count: u8 = 0;

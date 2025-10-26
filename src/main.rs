@@ -1,6 +1,4 @@
 // cargo run --release
-use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
 use std::sync::mpsc;
 use std::thread;
 use std::time::Instant;
@@ -12,15 +10,15 @@ fn simulate(simulations: usize, sender: mpsc::Sender<usize>, thread_id: usize) {
     let seed = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
-        .as_secs()
-        ^ thread_id as u64;
-    let mut rng = SmallRng::seed_from_u64(seed);
+        .as_secs();
+    let mut state = seed ^ thread_id as u64;
     let simulations_per_thread = simulations / NUM_THREADS;
     let mut local_success_count = 0;
     for _ in 0..simulations_per_thread {
         let mut birthdays = [0; DAYS_IN_YEAR];
         for _ in 0..PEOPLE {
-            let birthday = rng.gen_range(0..DAYS_IN_YEAR);
+            state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+            let birthday = (state as usize) % DAYS_IN_YEAR;
             birthdays[birthday] += 1;
         }
         let exactly_two_count = birthdays.iter().filter(|&&x| x == 2).count();
