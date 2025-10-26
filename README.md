@@ -4,15 +4,31 @@ This repository conducts a simulation of classes consisting of 24 people to sear
 
 ## Performance Comparison
 
+In March 2024, the project started with Python, C, CUDA, Rust, and Go implementations and was tested on AMD Ryzen 5 1600 (AF), NVIDIA GTX 1660 Super, and Google Colab's NVIDIA Tesla T4 with the following results:
+
 ### Simulation with 1,000,000 Iterations
-![Simulation with 1,000,000 Iterations](1_000_000.png)
+
+![Simulation with 1,000,000 Iterations](1_000_000_202403.png)
 
 **First Conclusion:** Python demonstrates slow performance.
 
 ### Simulation with 1,000,000,000 Iterations
-![Simulation with 1,000,000,000 Iterations](1_000_000_000.png)
+
+![Simulation with 1,000,000,000 Iterations](1_000_000_000_202403.png)
 
 **Second Conclusion:** CUDA exhibits super-fast performance.
+
+In October 2025, Java, OCaml, Zig, OpenCL, and JavaScript implementations were added and tested on Intel Core Ultra 7 155H and NVIDIA RTX 4060 Ti 16 GB with the following results:
+
+### Simulation with 1,000,000 Iterations
+
+![Simulation with 1,000,000 Iterations](1_000_000_202510.png)
+
+### Simulation with 1,000,000,000 Iterations
+
+![Simulation with 1,000,000,000 Iterations](1_000_000_000_202510.png)
+
+**Conclusion:** It seems necessary to rewrite existing implementations to make them use the same random function, probably LCG for simplicity, as Xoshiro, despite its potential speed, as well as PCG, despite its statistical goodness, may be too slow to implement in interpreted languages.
 
 ## Description
 
@@ -58,6 +74,8 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig cc -o birthday birthday.c -Ofast`
 - Execution: `./birthday`
 
+### Core Ultra 7 155H + 4060 Ti 16 GB
+
 #### Java
 - Compilation: `javac Birthday.java`
 - Execution: `java Birthday.java`
@@ -75,7 +93,7 @@ This benchmark was conducted on various hardware configurations and programming 
 
 #### OpenCL Compiled as C++ using GNU Compiler
 - Compilation: `g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
-- Execution: `./birthday_opencl
+- Execution: `./birthday_opencl`
 
 #### OpenCL Compiled as C using GNU Compiler
 - Compilation: `gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`

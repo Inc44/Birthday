@@ -1,0 +1,119 @@
+1 000 000
+python -OO birthday_numpy.py
+Probability: 0.377315000
+Execution Time: 9.422 s
+
+1 000 000
+gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.378375000
+Execution Time: 0.176 s
+
+1 000 000
+g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.378375000
+Execution Time: 0.183 s
+
+1 000 000
+zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.378375000
+Execution Time: 0.185 s
+
+1 000 000
+zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.378375000
+Execution Time: 0.175 s
+
+1 000 000
+gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.378309000
+Execution Time: 0.172 s
+
+1 000 000
+g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.378117000
+Execution Time: 0.172 s
+
+1 000 000
+zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.378117000
+Execution Time: 0.173 s
+
+1 000 000
+zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.378117000
+Execution Time: 0.175 s
+
+1 000 000
+gcc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377602000
+Execution Time: 0.027 s
+
+1 000 000
+g++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377602000
+Execution Time: 0.025 s
+
+1 000 000
+zig cc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377602000
+Execution Time: 0.019 s
+
+1 000 000
+zig c++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377602000
+Execution Time: 0.018 s
+
+1 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday //768
+Probability: 0.377815000
+Execution Time: 0.182 s
+
+1 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday //768
+Probability: 0.377385000
+Execution Time: 0.174 s
+
+1 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday //2176
+Probability: 0.376692000
+Execution Time: 0.193 s
+
+1 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday //2176
+Probability: 0.376939000
+Execution Time: 0.165 s
+
+1 000 000
+go build -o birthday birthday.go && ./birthday
+Probability: 0.377796000
+Execution Time: 0.043 s
+
+1 000 000
+javac Birthday.java && java Birthday
+Probability: 0.377214000
+Execution Time: 0.426 s
+
+1 000 000
+node birthday.js
+Probability: 0.377371000
+Execution Time: 0.179 s
+
+1 000 000
+ocamlopt -I +unix -thread unix.cmxa threads.cmxa -o birthday birthday.ml && ./birthday
+Probability: 0.377454000
+Execution Time: 1.186 s
+
+1 000 000
+python -OO birthday.py
+Probability: 0.377371000
+Execution Time: 13.243 s
+
+1 000 000
+zig build-exe birthday.zig -O ReleaseFast && ./birthday
+Probability: 0.377749000
+Execution Time: 0.023 s
+
+1 000 000
+cargo run --release
+Probability: 0.377043000
+Execution Time: 0.034 s

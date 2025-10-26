@@ -1,0 +1,104 @@
+1 000 000 000
+gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.377545250
+Execution Time: 3.338 s
+
+1 000 000 000
+g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.377545250
+Execution Time: 3.356 s
+
+1 000 000 000
+zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.377545250
+Execution Time: 3.357 s
+
+1 000 000 000
+zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //2176
+Probability: 0.377545250
+Execution Time: 3.357 s
+
+1 000 000 000
+gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.377554547
+Execution Time: 5.792 s
+
+1 000 000 000
+g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.377554547
+Execution Time: 5.797 s
+
+1 000 000 000
+zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.377539233
+Execution Time: 5.809 s
+
+1 000 000 000
+zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast && ./birthday_opencl //768
+Probability: 0.377539233
+Execution Time: 5.823 s
+
+1 000 000 000
+gcc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377677738
+Execution Time: 11.274 s
+
+1 000 000 000
+g++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377677030
+Execution Time: 11.047 s
+
+1 000 000 000
+zig cc -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377678235
+Execution Time: 9.849 s
+
+1 000 000 000
+zig c++ -o birthday birthday.c -Ofast && ./birthday
+Probability: 0.377681672
+Execution Time: 9.793 s
+
+1 000 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday //2176
+Probability: 0.377523786
+Execution Time: 3.275 s
+
+1 000 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday //2176
+Probability: 0.377497197
+Execution Time: 3.117 s
+
+1 000 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday //768
+Probability: 0.377510094
+Execution Time: 4.908 s
+
+1 000 000 000
+nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday //768
+Probability: 0.377520052
+Execution Time: 4.907 s
+
+1 000 000 000
+go build -o birthday birthday.go && ./birthday
+Probability: 0.377505484
+Execution Time: 38.467 s
+
+1 000 000 000
+javac Birthday.java && java Birthday
+Probability: 0.377519661
+Execution Time: 51.757 s
+
+1 000 000 000
+node birthday.js
+Probability: 0.377528121
+Execution Time: 89.995 s
+
+1 000 000 000
+zig build-exe birthday.zig -O ReleaseFast && ./birthday
+Probability: 0.377483398
+Execution Time: 9.287 s
+
+1 000 000 000
+cargo run --release
+Probability: 0.377522029
+Execution Time: 15.945 s
