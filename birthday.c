@@ -20,19 +20,20 @@ typedef struct {
 void* simulate(void* arg) {
 	ThreadData* data = (ThreadData*)arg;
 	int simulationsPerThread = data->simulations / NUM_THREADS;
-	struct timespec seed;
-	clock_gettime(CLOCK_MONOTONIC, &seed);
-	unsigned int state = seed.tv_nsec ^ data->threadId;
+	struct timespec time;
+	clock_gettime(CLOCK_MONOTONIC, &time);
+	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
+	unsigned int state = seed ^ data->threadId;
 	int successCount = 0;
 	for (int sim = 0; sim < simulationsPerThread; sim++) {
-		int birthdays[365] = {0};
-		for (int i = 0; i < 24; i++) {
+		int birthdays[DAYS_IN_YEAR] = {0};
+		for (int i = 0; i < PEOPLE; i++) {
 			state = state * MULTIPLIER + INCREMENT;
 			int birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}
 		int exactlyTwoCount = 0;
-		for (int i = 0; i < 365; i++) {
+		for (int i = 0; i < DAYS_IN_YEAR; i++) {
 			if (birthdays[i] == 2) {
 				exactlyTwoCount++;
 			}

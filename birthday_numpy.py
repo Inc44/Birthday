@@ -7,6 +7,8 @@ DAYS_IN_YEAR = 365
 NUM_THREADS = 768
 PEOPLE = 24
 TOTAL_SIMULATIONS = 1_000_000
+MULTIPLIER = 1664525
+INCREMENT = 1013904223
 
 
 class ThreadData:
@@ -21,12 +23,14 @@ def simulate(data):
 	simulations_per_thread = data.simulations // NUM_THREADS
 	seed = int(time.time_ns())
 	state = (seed ^ data.thread_id) & 0xFFFFFFFF
-	birthdays = np.random.RandomState(state).randint(
-		0, DAYS_IN_YEAR, size=(simulations_per_thread, PEOPLE)
-	)
-	for simulation in birthdays:
-		counts = np.bincount(simulation, minlength=DAYS_IN_YEAR)
-		exactly_two_count = np.sum(counts == 2)
+	birthdays = np.zeros(DAYS_IN_YEAR, dtype=np.uint8)
+	for _ in range(simulations_per_thread):
+		birthdays.fill(0)
+		for _ in range(PEOPLE):
+			state = (state * MULTIPLIER + INCREMENT) & 0xFFFFFFFF
+			birthday = state % DAYS_IN_YEAR
+			birthdays[birthday] += 1
+		exactly_two_count = np.count_nonzero(birthdays == 2)
 		if exactly_two_count == 1:
 			data.local_success_count += 1
 	with data.success_count_lock:
