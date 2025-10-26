@@ -1,10 +1,13 @@
 // javac Birthday.java && java Birthday
 import java.util.concurrent.CountDownLatch;
-import java.util.Random;
 public class Birthday {
-	static int NUM_THREADS = 768;
-	static int TOTAL_SIMULATIONS = 1_000_000;
-	static int SIMULATIONS_PER_THREAD = TOTAL_SIMULATIONS / NUM_THREADS;
+	static final int DAYS_IN_YEAR = 365;
+	static final int NUM_THREADS = 768;
+	static final int PEOPLE = 24;
+	static final int TOTAL_SIMULATIONS = 1_000_000;
+	static final int SIMULATIONS_PER_THREAD = TOTAL_SIMULATIONS / NUM_THREADS;
+	static final int MULTIPLIER = 1664525;
+	static final int INCREMENT = 1013904223;
 	static class Worker implements Runnable {
 		private int threadId;
 		private int[] dataSuccessCount;
@@ -16,18 +19,18 @@ public class Birthday {
 		}
 		@Override
 		public void run() {
-			long seed = (System.currentTimeMillis() / 1000L) ^ threadId;
-			Random rand = new Random();
-			rand.setSeed(seed);
+			long seed = System.nanoTime();
+			int state = (int) (seed ^ threadId);
 			int successCount = 0;
 			for (int sim = 0; sim < SIMULATIONS_PER_THREAD; sim++) {
-				int[] birthdays = new int[365];
-				for (int i = 0; i < 24; i++) {
-					int birthday = rand.nextInt(365);
+				int[] birthdays = new int[DAYS_IN_YEAR];
+				for (int i = 0; i < PEOPLE; i++) {
+					state = (state * MULTIPLIER + INCREMENT);
+					int birthday = Integer.remainderUnsigned(state, DAYS_IN_YEAR);
 					birthdays[birthday]++;
 				}
 				int exactlyTwoCount = 0;
-				for (int i = 0; i < 365; i++) {
+				for (int i = 0; i < DAYS_IN_YEAR; i++) {
 					if (birthdays[i] == 2) {
 						exactlyTwoCount++;
 					}

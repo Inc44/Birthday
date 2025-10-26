@@ -6,6 +6,8 @@
 #define NUM_THREADS 768
 #define PEOPLE 24
 #define TOTAL_SIMULATIONS 1000000
+#define MULTIPLIER 1664525
+#define INCREMENT 1013904223
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,12 +20,15 @@ typedef struct {
 void* simulate(void* arg) {
 	ThreadData* data = (ThreadData*)arg;
 	int simulationsPerThread = data->simulations / NUM_THREADS;
-	unsigned int seed = time(NULL) ^ data->threadId;
+	struct timespec seed;
+	clock_gettime(CLOCK_MONOTONIC, &seed);
+	unsigned int state = seed.tv_nsec ^ data->threadId;
 	int successCount = 0;
 	for (int sim = 0; sim < simulationsPerThread; sim++) {
 		int birthdays[365] = {0};
 		for (int i = 0; i < 24; i++) {
-			int birthday = rand_r(&seed) % 365;
+			state = state * MULTIPLIER + INCREMENT;
+			int birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}
 		int exactlyTwoCount = 0;

@@ -19,8 +19,9 @@ class ThreadData:
 
 def simulate(data):
 	simulations_per_thread = data.simulations // NUM_THREADS
-	np.random.seed(int(time.time()) ^ data.thread_id)
-	birthdays = np.random.randint(
+	seed = int(time.time_ns())
+	state = (seed ^ data.thread_id) & 0xFFFFFFFF
+	birthdays = np.random.RandomState(state).randint(
 		0, DAYS_IN_YEAR, size=(simulations_per_thread, PEOPLE)
 	)
 	for simulation in birthdays:

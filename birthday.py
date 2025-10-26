@@ -1,12 +1,13 @@
 # python -OO birthday.py
 import threading
-import random
 import time
 
 DAYS_IN_YEAR = 365
 NUM_THREADS = 768
 PEOPLE = 24
 TOTAL_SIMULATIONS = 1_000_000
+MULTIPLIER = 1664525
+INCREMENT = 1013904223
 
 
 class ThreadData:
@@ -19,12 +20,13 @@ class ThreadData:
 
 def simulate(data):
 	simulations_per_thread = data.simulations // NUM_THREADS
-	rng = random.Random()
-	rng.seed(int(time.time()) ^ data.thread_id)
+	seed = int(time.time_ns())
+	state = (seed ^ data.thread_id) & 0xFFFFFFFF
 	for _ in range(simulations_per_thread):
 		birthdays = [0] * DAYS_IN_YEAR
 		for _ in range(PEOPLE):
-			birthday = rng.randint(0, DAYS_IN_YEAR - 1)
+			state = (state * MULTIPLIER + INCREMENT) & 0xFFFFFFFF
+			birthday = state % DAYS_IN_YEAR
 			birthdays[birthday] += 1
 		exactly_two_count = sum(1 for day in birthdays if day == 2)
 		if exactly_two_count == 1:

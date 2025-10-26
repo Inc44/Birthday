@@ -4,20 +4,22 @@ use std::thread;
 use std::time::Instant;
 const DAYS_IN_YEAR: usize = 365;
 const NUM_THREADS: usize = 768;
-const PEOPLE: usize = 24;
+const PEOPLE: u8 = 24;
 const TOTAL_SIMULATIONS: usize = 1_000_000;
-fn simulate(simulations: usize, sender: mpsc::Sender<usize>, thread_id: usize) {
+const MULTIPLIER: u32 = 1664525;
+const INCREMENT: u32 = 1013904223;
+fn simulate(simulations: usize, sender: mpsc::Sender<usize>, thread_id: u64) {
     let seed = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
-        .as_secs();
-    let mut state = seed ^ thread_id as u64;
+        .as_nanos();
+    let mut state = (seed as u64 ^ thread_id) as u32;
     let simulations_per_thread = simulations / NUM_THREADS;
     let mut local_success_count = 0;
     for _ in 0..simulations_per_thread {
         let mut birthdays = [0; DAYS_IN_YEAR];
         for _ in 0..PEOPLE {
-            state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+            state = state.wrapping_mul(MULTIPLIER).wrapping_add(INCREMENT);
             let birthday = (state as usize) % DAYS_IN_YEAR;
             birthdays[birthday] += 1;
         }
@@ -34,7 +36,7 @@ fn main() {
     for thread_id in 0..NUM_THREADS {
         let sender = sender.clone();
         thread::spawn(move || {
-            simulate(TOTAL_SIMULATIONS, sender, thread_id);
+            simulate(TOTAL_SIMULATIONS, sender, thread_id as u64);
         });
     }
     let mut total_success_count = 0;

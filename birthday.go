@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"sync"
 	"time"
 )
@@ -14,16 +13,20 @@ const (
 	people               = 24
 	totalSimulations     = 1_000_000
 	simulationsPerThread = totalSimulations / numThreads
+	multiplier           = uint32(1664525)
+	increment            = uint32(1013904223)
 )
 
 func simulate(threadId int, simulations int, successCount *[]int, wg *sync.WaitGroup) {
 	defer wg.Done()
-	seed := rand.New(rand.NewSource(time.Now().UnixNano() ^ int64(threadId)))
+	seed := time.Now().UnixNano()
+	state := uint32(seed ^ int64(threadId))
 	successCountLocal := 0
 	for sim := 0; sim < simulationsPerThread; sim++ {
 		var birthdays [days_in_year]int
 		for i := 0; i < people; i++ {
-			birthday := seed.Intn(days_in_year)
+			state = state*multiplier + increment
+			birthday := int(state % days_in_year)
 			birthdays[birthday]++
 		}
 		exactlyTwoCount := 0

@@ -17,8 +17,8 @@ if (!isMainThread)
 	const tid = workerData.threadId;
 	const simulationsPerThread = workerData.simulations;
 	let successCount = 0;
-	const seed = (Date.now() / 1000);
-	let state = seed ^ tid;
+	const seed = Number(process.hrtime.bigint());
+	let state = (seed ^ tid) >>> 0;
 	const birthdays = new Uint8Array(DAYS_IN_YEAR);
 	for (let s = 0; s < simulationsPerThread; s++)
 	{
