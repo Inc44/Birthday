@@ -22,7 +22,7 @@ if (!isMainThread)
 	const birthdays = new Uint8Array(DAYS_IN_YEAR);
 	for (let s = 0; s < simulationsPerThread; s++)
 	{
-		for (let i = 0; i < DAYS_IN_YEAR; i++) birthdays[i] = 0;
+		birthdays.fill(0);
 		for (let i = 0; i < PEOPLE; i++)
 		{
 			state = (state * 1664525 + 1013904223) >>> 0;
