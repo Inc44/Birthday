@@ -11,6 +11,8 @@
 // #define NUM_THREADS 2176 for RTX 4060 TI and Intel Arc
 #define PEOPLE 24
 #define TOTAL_SIMULATIONS 1000000
+#define MULTIPLIER 1664525
+#define INCREMENT 1013904223
 #include <CL/cl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,12 +20,16 @@
 int main() {
 	struct timespec start, end;
 	clock_gettime(CLOCK_MONOTONIC, &start);
-	unsigned int seed = time(NULL);
+	struct timespec time;
+	clock_gettime(CLOCK_MONOTONIC, &time);
+	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
 	size_t block_size = (size_t)BLOCK_SIZE;
 	int days_in_year = DAYS_IN_YEAR;
 	int num_threads = NUM_THREADS;
 	int people = PEOPLE;
 	int totalSimulations = TOTAL_SIMULATIONS;
+	int multiplier = MULTIPLIER;
+	int increment = INCREMENT;
 	size_t threads_size = (size_t)num_threads;
 	cl_mem d_successCount;
 	int* h_successCount;
@@ -44,7 +50,9 @@ int main() {
 		"					   unsigned int seed,"
 		"					   int days_in_year,"
 		"					   int people,"
-		"					   int num_threads) {"
+		"					   int num_threads,"
+		"					   int multiplier,"
+		"					   int increment) {"
 		"	size_t tid = get_global_id(0);"
 		"	int simulationsPerThread = simulations / num_threads;"
 		"	int successCount = 0;"
@@ -52,7 +60,7 @@ int main() {
 		"	for (int sim = 0; sim < simulationsPerThread; sim++) {"
 		"		int birthdays[365] = {0};"
 		"		for (int i = 0; i < people; i++) {"
-		"			state = state * 1664525U + 1013904223U;"
+		"			state = state * multiplier + increment;"
 		"			int birthday = (int)(state % (unsigned int)days_in_year);"
 		"			birthdays[birthday]++;"
 		"		}"
@@ -79,6 +87,8 @@ int main() {
 	clSetKernelArg(kernel, 3, sizeof(int), &days_in_year);
 	clSetKernelArg(kernel, 4, sizeof(int), &people);
 	clSetKernelArg(kernel, 5, sizeof(int), &num_threads);
+	clSetKernelArg(kernel, 6, sizeof(int), &multiplier);
+	clSetKernelArg(kernel, 7, sizeof(int), &increment);
 	clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &threads_size, &block_size,
 						   0, NULL, NULL);
 	clEnqueueReadBuffer(queue, d_successCount, CL_TRUE, 0,
