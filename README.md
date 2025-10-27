@@ -130,11 +130,13 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `clang++ -o birthday birthday.cpp -O3 -ffast-math`
 - Execution: `./birthday`
 
+#### Lua
+- Execution: `lua birthday.lua`
+
 ## 🚧 TODO
 
 - [ ] **Assembly implementation**
 - [ ] **C# implementation**
-- [ ] **Lua implementation**
 - [ ] **Vulkan implementation**
 - [ ] **Create separate charts for each tested hardware**
 - [ ] **Highlight languages with color**
