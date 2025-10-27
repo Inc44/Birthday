@@ -67,7 +67,8 @@ else
 			{
 				const probability = totalSuccessCount / TOTAL_SIMULATIONS;
 				console.log(`Probability: ${probability.toFixed(9)}`);
-				const elapsed_time = Number(process.hrtime.bigint() - start_time) / 1e9;
+				const end_time = process.hrtime.bigint();
+				const elapsed_time = Number(end_time - start_time) / 1e9;
 				console.log(`Execution Time: ${elapsed_time.toFixed(3)} s`);
 			}
 		});

@@ -44,7 +44,7 @@ let simulate thread_id data_success_count =
 	data_success_count.(thread_id) <- !local_success_count
 
 let () =
-	let start = gettimeofday () in
+	let start_time = gettimeofday () in
 	let data_success_count = Array.make threads 0 in
 	let threads =
 		Array.init threads (fun t ->
@@ -56,5 +56,6 @@ let () =
 		float_of_int total_success_count /. float_of_int total_simulations
 	in
 	Printf.printf "Probability: %.9f\n" probability;
-	let elapsed = gettimeofday () -. start in
-	Printf.printf "Execution Time: %.3f s\n" elapsed
+	let end_time = gettimeofday () in
+	let elapsed_time = end_time -. start_time in
+	Printf.printf "Execution Time: %.3f s\n" elapsed_time

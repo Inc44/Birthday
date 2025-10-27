@@ -31,7 +31,7 @@ fn simulate(simulations: usize, sender: mpsc::Sender<usize>, thread_id: u64) {
     sender.send(local_success_count).unwrap();
 }
 fn main() {
-    let start = Instant::now();
+    let start_time = Instant::now();
     let (sender, receiver) = mpsc::channel();
     for thread_id in 0..NUM_THREADS {
         let sender = sender.clone();
@@ -45,6 +45,6 @@ fn main() {
     }
     let probability = total_success_count as f64 / TOTAL_SIMULATIONS as f64;
     println!("Probability: {:.9}", probability);
-    let elapsed = start.elapsed();
-    println!("Execution Time: {:.3} s", elapsed.as_secs_f64());
+    let elapsed_time = start_time.elapsed();
+    println!("Execution Time: {:.3} s", elapsed_time.as_secs_f64());
 }

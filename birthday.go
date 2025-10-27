@@ -42,7 +42,7 @@ func simulate(threadId int, simulations int, successCount *[]int, wg *sync.WaitG
 	(*successCount)[threadId] = localSuccessCount
 }
 func main() {
-	start := time.Now()
+	startTime := time.Now()
 	successCount := make([]int, numThreads)
 	var wg sync.WaitGroup
 	for t := 0; t < numThreads; t++ {
@@ -56,6 +56,6 @@ func main() {
 	}
 	probability := float64(totalSuccessCount) / float64(totalSimulations)
 	fmt.Printf("Probability: %.9f\n", probability)
-	elapsed := time.Since(start)
-	fmt.Printf("Execution Time: %.3f s\n", elapsed.Seconds())
+	elapsedTime := time.Since(startTime)
+	fmt.Printf("Execution Time: %.3f s\n", elapsedTime.Seconds())
 }

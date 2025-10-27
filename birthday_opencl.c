@@ -18,8 +18,8 @@
 #include <stdlib.h>
 #include <time.h>
 int main() {
-	struct timespec start, end;
-	clock_gettime(CLOCK_MONOTONIC, &start);
+	struct timespec start_time, end_time;
+	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
@@ -100,10 +100,10 @@ int main() {
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;
 	printf("Probability: %.9f\n", probability);
-	clock_gettime(CLOCK_MONOTONIC, &end);
-	double elapsed =
-		(end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
-	printf("Execution Time: %.3f s\n", elapsed);
+	clock_gettime(CLOCK_MONOTONIC, &end_time);
+	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
+						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
+	printf("Execution Time: %.3f s\n", elapsed_time);
 	free(h_successCount);
 	clReleaseMemObject(d_successCount);
 	clReleaseKernel(kernel);

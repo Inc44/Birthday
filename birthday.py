@@ -48,7 +48,8 @@ def main():
 	total_success_count = sum(success_count)
 	probability = total_success_count / TOTAL_SIMULATIONS
 	print(f"Probability: {probability:.9f}")
-	elapsed_time = time.time() - start_time
+	end_time = time.time()
+	elapsed_time = end_time - start_time
 	print(f"Execution Time: {elapsed_time:.3f} s")
 
 

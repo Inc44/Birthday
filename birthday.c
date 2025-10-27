@@ -46,8 +46,8 @@ void* simulate(void* arg) {
 	pthread_exit(NULL);
 }
 int main() {
-	struct timespec start, end;
-	clock_gettime(CLOCK_MONOTONIC, &start);
+	struct timespec start_time, end_time;
+	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	int totalSimulations = TOTAL_SIMULATIONS;
 	int* successCount = (int*)malloc(NUM_THREADS * sizeof(int));
 	pthread_t threads[NUM_THREADS];
@@ -67,9 +67,9 @@ int main() {
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;
 	printf("Probability: %.9f\n", probability);
-	clock_gettime(CLOCK_MONOTONIC, &end);
-	double elapsed =
-		(end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
-	printf("Execution Time: %.3f s\n", elapsed);
+	clock_gettime(CLOCK_MONOTONIC, &end_time);
+	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
+						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
+	printf("Execution Time: %.3f s\n", elapsed_time);
 	return 0;
 }

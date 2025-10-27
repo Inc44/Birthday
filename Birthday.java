@@ -44,7 +44,7 @@ public class Birthday {
 		}
 	}
 	public static void main(String[] args) {
-		long start = System.nanoTime();
+		long startTime = System.nanoTime();
 		int[] dataSuccessCount = new int[NUM_THREADS];
 		CountDownLatch latch = new CountDownLatch(NUM_THREADS);
 		for (int t = 0; t < NUM_THREADS; t++) {
@@ -59,7 +59,8 @@ public class Birthday {
 		for (int t : dataSuccessCount) totalSuccessCount += t;
 		double probability = (double) totalSuccessCount / TOTAL_SIMULATIONS;
 		System.out.printf("Probability: %.9f%n", probability);
-		double elapsed = (System.nanoTime() - start) / 1e9;
-		System.out.printf("Execution Time: %.3f s%n", elapsed);
+		long endTime = System.nanoTime();
+		double elapsedTime = (endTime - startTime) / 1e9;
+		System.out.printf("Execution Time: %.3f s%n", elapsedTime);
 	}
 }

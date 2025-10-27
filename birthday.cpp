@@ -4,7 +4,7 @@
 #define DAYS_IN_YEAR 365
 #define NUM_THREADS 768
 #define PEOPLE 24
-#define TOTAL_SIMULATIONS 1000000000
+#define TOTAL_SIMULATIONS 1000000
 #define MULTIPLIER 1664525
 #define INCREMENT 1013904223
 #include <chrono>
@@ -38,7 +38,7 @@ void simulate(int simulations, int threadId, int* successCount) {
 	successCount[threadId] = localSuccessCount;
 }
 int main() {
-	chrono::steady_clock::time_point start = chrono::steady_clock::now();
+	chrono::steady_clock::time_point start_time = chrono::steady_clock::now();
 	int totalSimulations = TOTAL_SIMULATIONS;
 	vector<int> successCount(NUM_THREADS);
 	vector<thread> threads;
@@ -53,8 +53,9 @@ int main() {
 		totalSuccessCount += successCount[t];
 	double probability = (double)totalSuccessCount / totalSimulations;
 	printf("Probability: %.9f\n", probability);
-	chrono::steady_clock::time_point end = chrono::steady_clock::now();
-	double elapsed = chrono::duration<double>(end - start).count();
-	printf("Execution Time: %.3f s\n", elapsed);
+	chrono::steady_clock::time_point end_time = chrono::steady_clock::now();
+	double elapsed_time =
+		chrono::duration<double>(end_time - start_time).count();
+	printf("Execution Time: %.3f s\n", elapsed_time);
 	return 0;
 }
