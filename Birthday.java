@@ -10,11 +10,11 @@ public class Birthday {
 	static final int INCREMENT = 1013904223;
 	static class Worker implements Runnable {
 		private int threadId;
-		private int[] dataSuccessCount;
+		private int[] successCount;
 		private CountDownLatch latch;
-		Worker(int threadId, int[] dataSuccessCount, CountDownLatch latch) {
+		Worker(int threadId, int[] successCount, CountDownLatch latch) {
 			this.threadId = threadId;
-			this.dataSuccessCount = dataSuccessCount;
+			this.successCount = successCount;
 			this.latch = latch;
 		}
 		@Override
@@ -25,30 +25,28 @@ public class Birthday {
 			for (int sim = 0; sim < SIMULATIONS_PER_THREAD; sim++) {
 				int[] birthdays = new int[DAYS_IN_YEAR];
 				for (int i = 0; i < PEOPLE; i++) {
-					state = (state * MULTIPLIER + INCREMENT);
+					state = state * MULTIPLIER + INCREMENT;
 					int birthday = Integer.remainderUnsigned(state, DAYS_IN_YEAR);
 					birthdays[birthday]++;
 				}
 				int exactlyTwoCount = 0;
 				for (int i = 0; i < DAYS_IN_YEAR; i++) {
-					if (birthdays[i] == 2) {
+					if (birthdays[i] == 2)
 						exactlyTwoCount++;
-					}
 				}
-				if (exactlyTwoCount == 1) {
+				if (exactlyTwoCount == 1)
 					localSuccessCount++;
-				}
 			}
-			dataSuccessCount[threadId] = localSuccessCount;
+			successCount[threadId] = localSuccessCount;
 			latch.countDown();
 		}
 	}
 	public static void main(String[] args) {
 		long startTime = System.nanoTime();
-		int[] dataSuccessCount = new int[NUM_THREADS];
+		int[] successCount = new int[NUM_THREADS];
 		CountDownLatch latch = new CountDownLatch(NUM_THREADS);
 		for (int t = 0; t < NUM_THREADS; t++) {
-			new Thread(new Worker(t, dataSuccessCount, latch)).start();
+			new Thread(new Worker(t, successCount, latch)).start();
 		}
 		try {
 			latch.await();
@@ -56,7 +54,7 @@ public class Birthday {
 			return;
 		}
 		int totalSuccessCount = 0;
-		for (int t : dataSuccessCount) totalSuccessCount += t;
+		for (int t : successCount) totalSuccessCount += t;
 		double probability = (double) totalSuccessCount / TOTAL_SIMULATIONS;
 		System.out.printf("Probability: %.9f%n", probability);
 		long endTime = System.nanoTime();
