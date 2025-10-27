@@ -137,10 +137,13 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `csc /o+ Birthday.cs`
 - Execution: `mono ./Birthday.exe`
 
+#### Vulkan
+- Compilation: `gcc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
 ## 🚧 TODO
 
 - [ ] **Assembly implementation**
-- [ ] **Vulkan implementation**
 - [ ] **Create separate charts for each tested hardware**
 - [ ] **Highlight languages with color**
 - [ ] **Run tests on Windows**

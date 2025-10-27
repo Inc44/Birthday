@@ -5,6 +5,9 @@ Cargo.lock
 birthday
 birthday.cmi
 birthday.cmx
+birthday.comp
+birthday.comp.spv
 birthday.o
 birthday_opencl
+birthday_vulkan
 target
