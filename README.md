@@ -118,6 +118,18 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
 - Execution: `./birthday_opencl`
 
+#### C++ Compiled using GNU Compiler
+- Compilation: `g++ -o birthday birthday.cpp -Ofast`
+- Execution: `./birthday`
+
+#### C++ Compiled using Zig Compiler
+- Compilation: `zig c++ -o birthday birthday.cpp -Ofast`
+- Execution: `./birthday`
+
+#### C++ Compiled using Clang Compiler
+- Compilation: `clang++ -o birthday birthday.cpp -O3 -ffast-math`
+- Execution: `./birthday`
+
 ## 🚧 TODO
 
 - [ ] **Assembly implementation**
