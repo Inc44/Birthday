@@ -1,2 +1,10 @@
-target
+Birthday$Worker.class
+Birthday.class
+Birthday.exe
+Cargo.lock
 birthday
+birthday.cmi
+birthday.cmx
+birthday.o
+birthday_opencl
+target
