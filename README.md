@@ -133,10 +133,13 @@ This benchmark was conducted on various hardware configurations and programming 
 #### Lua
 - Execution: `lua birthday.lua`
 
+#### C#
+- Compilation: `csc /o+ Birthday.cs`
+- Execution: `mono ./Birthday.exe`
+
 ## 🚧 TODO
 
 - [ ] **Assembly implementation**
-- [ ] **C# implementation**
 - [ ] **Vulkan implementation**
 - [ ] **Create separate charts for each tested hardware**
 - [ ] **Highlight languages with color**
