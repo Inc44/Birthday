@@ -18,7 +18,7 @@ __global__ void simulate(int simulations,
 						 unsigned int seed) {
 	int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	int simulationsPerThread = simulations / NUM_THREADS;
-	int successCount = 0;
+	int localSuccessCount = 0;
 	unsigned int state = seed ^ tid;
 	for (int sim = 0; sim < simulationsPerThread; sim++) {
 		int birthdays[DAYS_IN_YEAR] = {0};
@@ -34,10 +34,10 @@ __global__ void simulate(int simulations,
 			}
 		}
 		if (exactlyTwoCount == 1) {
-			successCount++;
+			localSuccessCount++;
 		}
 	}
-	d_successCount[tid] = successCount;
+	d_successCount[tid] = localSuccessCount;
 }
 int main() {
 	struct timespec start, end;

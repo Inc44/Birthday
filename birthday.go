@@ -21,7 +21,7 @@ func simulate(threadId int, simulations int, successCount *[]int, wg *sync.WaitG
 	defer wg.Done()
 	seed := time.Now().UnixNano()
 	state := uint32(seed ^ int64(threadId))
-	successCountLocal := 0
+	localSuccessCount := 0
 	for sim := 0; sim < simulationsPerThread; sim++ {
 		var birthdays [days_in_year]int
 		for i := 0; i < people; i++ {
@@ -36,10 +36,10 @@ func simulate(threadId int, simulations int, successCount *[]int, wg *sync.WaitG
 			}
 		}
 		if exactlyTwoCount == 1 {
-			successCountLocal++
+			localSuccessCount++
 		}
 	}
-	(*successCount)[threadId] = successCountLocal
+	(*successCount)[threadId] = localSuccessCount
 }
 func main() {
 	start := time.Now()

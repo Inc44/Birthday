@@ -27,7 +27,7 @@ let simulations_per_thread = total_simulations / threads
 let simulate thread_id data_success_count =
 	let seed = Int64.of_float (Unix.gettimeofday () *. 1_000_000_000.) in
 	let state = ref (Int64.to_int (Int64.logxor seed (Int64.of_int thread_id))) in
-	let success_count = ref 0 in
+	let local_success_count = ref 0 in
 	for _ = 1 to simulations_per_thread do
 		let birthdays = Array.make days_in_year 0 in
 		for _ = 1 to people do
@@ -39,9 +39,9 @@ let simulate thread_id data_success_count =
 		for i = 0 to days_in_year - 1 do
 			if birthdays.(i) = 2 then incr exactly_two_count
 		done;
-		if !exactly_two_count = 1 then incr success_count
+		if !exactly_two_count = 1 then incr local_success_count
 	done;
-	data_success_count.(thread_id) <- !success_count
+	data_success_count.(thread_id) <- !local_success_count
 
 let () =
 	let start = gettimeofday () in

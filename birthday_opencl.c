@@ -55,7 +55,7 @@ int main() {
 		"					   int increment) {"
 		"	size_t tid = get_global_id(0);"
 		"	int simulationsPerThread = simulations / num_threads;"
-		"	int successCount = 0;"
+		"	int localSuccessCount = 0;"
 		"	unsigned int state = seed ^ (unsigned int)tid;"
 		"	for (int sim = 0; sim < simulationsPerThread; sim++) {"
 		"		int birthdays[365] = {0};"
@@ -71,10 +71,10 @@ int main() {
 		"			}"
 		"		}"
 		"		if (exactlyTwoCount == 1) {"
-		"			successCount++;"
+		"			localSuccessCount++;"
 		"		}"
 		"	}"
-		"	d_successCount[(int)tid] = successCount;"
+		"	d_successCount[(int)tid] = localSuccessCount;"
 		"}";
 	program = clCreateProgramWithSource(context, 1, &simulate, NULL, NULL);
 	clBuildProgram(program, 1, &device, NULL, NULL, NULL);

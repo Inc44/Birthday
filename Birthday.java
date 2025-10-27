@@ -21,7 +21,7 @@ public class Birthday {
 		public void run() {
 			long seed = System.nanoTime();
 			int state = (int) (seed ^ threadId);
-			int successCount = 0;
+			int localSuccessCount = 0;
 			for (int sim = 0; sim < SIMULATIONS_PER_THREAD; sim++) {
 				int[] birthdays = new int[DAYS_IN_YEAR];
 				for (int i = 0; i < PEOPLE; i++) {
@@ -36,10 +36,10 @@ public class Birthday {
 					}
 				}
 				if (exactlyTwoCount == 1) {
-					successCount++;
+					localSuccessCount++;
 				}
 			}
-			dataSuccessCount[threadId] = successCount;
+			dataSuccessCount[threadId] = localSuccessCount;
 			latch.countDown();
 		}
 	}

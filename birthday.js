@@ -16,7 +16,7 @@ if (!isMainThread)
 {
 	const tid = workerData.threadId;
 	const simulationsPerThread = workerData.simulations;
-	let successCount = 0;
+	let localSuccessCount = 0;
 	const seed = Number(process.hrtime.bigint());
 	let state = (seed ^ tid) >>> 0;
 	const birthdays = new Uint8Array(DAYS_IN_YEAR);
@@ -34,9 +34,9 @@ if (!isMainThread)
 		{
 			if (birthdays[i] === 2) exactlyTwoCount++;
 		}
-		if (exactlyTwoCount === 1) successCount++;
+		if (exactlyTwoCount === 1) localSuccessCount++;
 	}
-	parentPort.postMessage(successCount);
+	parentPort.postMessage(localSuccessCount);
 }
 else
 {

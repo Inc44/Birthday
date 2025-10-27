@@ -24,7 +24,7 @@ void* simulate(void* arg) {
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
 	unsigned int state = seed ^ data->threadId;
-	int successCount = 0;
+	int localSuccessCount = 0;
 	for (int sim = 0; sim < simulationsPerThread; sim++) {
 		int birthdays[DAYS_IN_YEAR] = {0};
 		for (int i = 0; i < PEOPLE; i++) {
@@ -39,10 +39,10 @@ void* simulate(void* arg) {
 			}
 		}
 		if (exactlyTwoCount == 1) {
-			successCount++;
+			localSuccessCount++;
 		}
 	}
-	data->successCount[data->threadId] = successCount;
+	data->successCount[data->threadId] = localSuccessCount;
 	pthread_exit(NULL);
 }
 int main() {

@@ -15,7 +15,7 @@ fn simulate(data: ThreadData) void {
     const simulations_per_thread = data.simulations / NUM_THREADS;
     const seed: u64 = @intCast(std.time.nanoTimestamp());
     var state: u32 = @truncate(seed ^ data.thread_id);
-    var success_count: u32 = 0;
+    var local_success_count: u32 = 0;
     for (0..simulations_per_thread) |_| {
         var birthdays = [_]u8{0} ** DAYS_IN_YEAR;
         for (0..PEOPLE) |_| {
@@ -30,10 +30,10 @@ fn simulate(data: ThreadData) void {
             }
         }
         if (exactly_two_count == 1) {
-            success_count += 1;
+            local_success_count += 1;
         }
     }
-    data.success_count[data.thread_id] = success_count;
+    data.success_count[data.thread_id] = local_success_count;
 }
 pub fn main() !void {
     var start_time = try std.time.Timer.start();
