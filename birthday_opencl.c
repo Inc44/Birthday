@@ -4,6 +4,10 @@
 // ./birthday_opencl
 // zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast &&
 // ./birthday_opencl
+// clang -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math &&
+// ./birthday_opencl
+// clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math &&
+// ./birthday_opencl
 #define CL_TARGET_OPENCL_VERSION 300
 #define BLOCK_SIZE 32
 #define DAYS_IN_YEAR 365
@@ -14,6 +18,7 @@
 #define MULTIPLIER 1664525
 #define INCREMENT 1013904223
 #include <CL/cl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -22,18 +27,18 @@ int main() {
 	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
-	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
+	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
 	size_t block_size = (size_t)BLOCK_SIZE;
-	int days_in_year = DAYS_IN_YEAR;
-	int num_threads = NUM_THREADS;
-	int people = PEOPLE;
-	int totalSimulations = TOTAL_SIMULATIONS;
-	int multiplier = MULTIPLIER;
-	int increment = INCREMENT;
+	uint16_t days_in_year = DAYS_IN_YEAR;
+	uint16_t num_threads = NUM_THREADS;
+	uint8_t people = PEOPLE;
+	uint32_t totalSimulations = TOTAL_SIMULATIONS;
+	uint32_t multiplier = MULTIPLIER;
+	uint32_t increment = INCREMENT;
 	size_t threads_size = (size_t)num_threads;
 	cl_mem d_successCount;
-	int* h_successCount;
-	h_successCount = (int*)malloc(NUM_THREADS * sizeof(int));
+	uint32_t* h_successCount;
+	h_successCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
 	cl_platform_id platform;
 	cl_device_id device;
 	cl_context context;
@@ -45,26 +50,26 @@ int main() {
 	context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
 	queue = clCreateCommandQueueWithProperties(context, device, NULL, NULL);
 	const char* simulate =
-		"__kernel void simulate(int simulations,"
-		"					   __global int* d_successCount,"
-		"					   unsigned int seed,"
-		"					   int days_in_year,"
-		"					   int people,"
-		"					   int num_threads,"
-		"					   int multiplier,"
-		"					   int increment) {"
+		"__kernel void simulate(uint simulations,"
+		"					   __global uint* d_successCount,"
+		"					   uint seed,"
+		"					   uint days_in_year,"
+		"					   uint people,"
+		"					   uint num_threads,"
+		"					   uint multiplier,"
+		"					   uint increment) {"
 		"	size_t tid = get_global_id(0);"
-		"	int simulationsPerThread = simulations / num_threads;"
-		"	int localSuccessCount = 0;"
-		"	unsigned int state = seed ^ (unsigned int)tid;"
-		"	for (int sim = 0; sim < simulationsPerThread; sim++) {"
-		"		int birthdays[365] = {0};"
+		"	uint simulationsPerThread = simulations / num_threads;"
+		"	uint localSuccessCount = 0;"
+		"	uint state = seed ^ tid;"
+		"	for (uint sim = 0; sim < simulationsPerThread; sim++) {"
+		"		uchar birthdays[365] = {0};"
 		"		for (int i = 0; i < people; i++) {"
 		"			state = state * multiplier + increment;"
-		"			int birthday = (int)(state % (unsigned int)days_in_year);"
+		"			uint birthday = state % days_in_year;"
 		"			birthdays[birthday]++;"
 		"		}"
-		"		int exactlyTwoCount = 0;"
+		"		uchar exactlyTwoCount = 0;"
 		"		for (int i = 0; i < days_in_year; i++) {"
 		"			if (birthdays[i] == 2) {"
 		"				exactlyTwoCount++;"
@@ -80,22 +85,22 @@ int main() {
 	clBuildProgram(program, 1, &device, NULL, NULL, NULL);
 	kernel = clCreateKernel(program, "simulate", NULL);
 	d_successCount = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-									num_threads * sizeof(int), NULL, NULL);
-	clSetKernelArg(kernel, 0, sizeof(int), &totalSimulations);
+									num_threads * sizeof(uint32_t), NULL, NULL);
+	clSetKernelArg(kernel, 0, sizeof(uint32_t), &totalSimulations);
 	clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_successCount);
-	clSetKernelArg(kernel, 2, sizeof(unsigned int), &seed);
-	clSetKernelArg(kernel, 3, sizeof(int), &days_in_year);
-	clSetKernelArg(kernel, 4, sizeof(int), &people);
-	clSetKernelArg(kernel, 5, sizeof(int), &num_threads);
-	clSetKernelArg(kernel, 6, sizeof(int), &multiplier);
-	clSetKernelArg(kernel, 7, sizeof(int), &increment);
+	clSetKernelArg(kernel, 2, sizeof(uint32_t), &seed);
+	clSetKernelArg(kernel, 3, sizeof(uint16_t), &days_in_year);
+	clSetKernelArg(kernel, 4, sizeof(uint8_t), &people);
+	clSetKernelArg(kernel, 5, sizeof(uint16_t), &num_threads);
+	clSetKernelArg(kernel, 6, sizeof(uint32_t), &multiplier);
+	clSetKernelArg(kernel, 7, sizeof(uint32_t), &increment);
 	clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &threads_size, &block_size,
 						   0, NULL, NULL);
 	clEnqueueReadBuffer(queue, d_successCount, CL_TRUE, 0,
-						num_threads * sizeof(int), h_successCount, 0, NULL,
+						num_threads * sizeof(uint32_t), h_successCount, 0, NULL,
 						NULL);
-	int totalSuccessCount = 0;
-	for (int t = 0; t < num_threads; t++) {
+	uint32_t totalSuccessCount = 0;
+	for (uint16_t t = 0; t < num_threads; t++) {
 		totalSuccessCount += h_successCount[t];
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;

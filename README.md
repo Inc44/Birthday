@@ -57,7 +57,7 @@ This benchmark was conducted on various hardware configurations and programming 
 - Execution: `./birthday`
 
 #### Rust
-- Optimized Run: `cargo run --release`
+- Optimized Run: `cargo run --release -q`
 
 #### C Compiled as C++ using GNU Compiler
 - Compilation: `g++ -o birthday birthday.c -Ofast`
@@ -137,9 +137,45 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `csc /o+ Birthday.cs`
 - Execution: `mono ./Birthday.exe`
 
-#### Vulkan
+#### OpenCL Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math
+- Execution: `./birthday_opencl`
+
+#### OpenCL Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math`
+- Execution: `./birthday_opencl`
+
+#### Vulkan Compiled as C++ using GNU Compiler
+- Compilation: `g++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C using GNU Compiler
 - Compilation: `gcc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
 - Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C++ using Zig Compiler
+- Compilation: `zig c++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
+- Execution: `./birthday_vulkan`
+
+#### C Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday birthday.c -O3 -ffast-math`
+- Execution: `./birthday`
+
+#### C Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday birthday.c -O3 -ffast-math`
+- Execution: `./birthday`
 
 ## 🚧 TODO
 

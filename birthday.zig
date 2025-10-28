@@ -8,7 +8,7 @@ const MULTIPLIER: u32 = 1664525;
 const INCREMENT: u32 = 1013904223;
 const ThreadData = struct {
     simulations: u32,
-    thread_id: u64,
+    thread_id: u16,
     success_count: []u32,
 };
 fn simulate(data: ThreadData) void {
@@ -36,14 +36,14 @@ fn simulate(data: ThreadData) void {
     data.success_count[data.thread_id] = local_success_count;
 }
 pub fn main() !void {
-    var start_time = try std.time.Timer.start();
+    const start_time: u64 = @intCast(std.time.nanoTimestamp());
     var success_count: [NUM_THREADS]u32 = undefined;
     var threads: [NUM_THREADS]std.Thread = undefined;
     var data: [NUM_THREADS]ThreadData = undefined;
     for (0..NUM_THREADS) |t| {
         data[t] = .{
             .simulations = TOTAL_SIMULATIONS,
-            .thread_id = t,
+            .thread_id = @truncate(t),
             .success_count = &success_count,
         };
         threads[t] = try std.Thread.spawn(.{}, simulate, .{data[t]});
@@ -51,12 +51,13 @@ pub fn main() !void {
     for (threads) |thread| {
         thread.join();
     }
-    var total_success_count: u64 = 0;
+    var total_success_count: u32 = 0;
     for (success_count) |count| {
         total_success_count += count;
     }
-    const probability = @as(f64, @floatFromInt(total_success_count)) / TOTAL_SIMULATIONS;
+    const probability = @as(f32, @floatFromInt(total_success_count)) / TOTAL_SIMULATIONS;
     std.debug.print("Probability: {d:.9}\n", .{probability});
-    const elapsed_time = @as(f64, @floatFromInt(start_time.read())) / std.time.ns_per_s;
+    const end_time: u64 = @intCast(std.time.nanoTimestamp());
+    const elapsed_time: f64 = @as(f64, @floatFromInt(end_time - start_time)) / std.time.ns_per_s;
     std.debug.print("Execution Time: {d:.3} s\n", .{elapsed_time});
 }

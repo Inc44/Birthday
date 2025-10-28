@@ -13,22 +13,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-__global__ void simulate(int simulations,
-						 int* d_successCount,
-						 unsigned int seed) {
-	int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	int simulationsPerThread = simulations / NUM_THREADS;
-	int localSuccessCount = 0;
-	unsigned int state = seed ^ tid;
-	for (int sim = 0; sim < simulationsPerThread; sim++) {
-		int birthdays[DAYS_IN_YEAR] = {0};
-		for (int i = 0; i < PEOPLE; i++) {
+#include <stdint.h>
+__global__ void simulate(uint32_t simulations,
+						 uint32_t* d_successCount,
+						 uint64_t seed) {
+	uint16_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+	uint32_t simulationsPerThread = simulations / NUM_THREADS;
+	uint32_t localSuccessCount = 0;
+	uint32_t state = seed ^ tid;
+	for (uint32_t sim = 0; sim < simulationsPerThread; sim++) {
+		uint8_t birthdays[DAYS_IN_YEAR] = {0};
+		for (uint8_t i = 0; i < PEOPLE; i++) {
 			state = state * MULTIPLIER + INCREMENT;
-			int birthday = state % DAYS_IN_YEAR;
+			uint16_t birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}
-		int exactlyTwoCount = 0;
-		for (int i = 0; i < DAYS_IN_YEAR; i++) {
+		uint8_t exactlyTwoCount = 0;
+		for (uint16_t i = 0; i < DAYS_IN_YEAR; i++) {
 			if (birthdays[i] == 2) {
 				exactlyTwoCount++;
 			}
@@ -44,20 +45,19 @@ int main() {
 	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
-	unsigned long long seed = time.tv_sec * 1e9 + time.tv_nsec;
-	int totalSimulations = TOTAL_SIMULATIONS;
-	int *d_successCount, *h_successCount;
-	cudaMalloc((void**)&d_successCount, NUM_THREADS * sizeof(int));
-	h_successCount = (int*)malloc(NUM_THREADS * sizeof(int));
-	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(totalSimulations, d_successCount,
+	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
+	uint32_t *d_successCount, *h_successCount;
+	cudaMalloc((void**)&d_successCount, NUM_THREADS * sizeof(uint32_t));
+	h_successCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS, d_successCount,
 										 seed);
-	cudaMemcpy(h_successCount, d_successCount, NUM_THREADS * sizeof(int),
+	cudaMemcpy(h_successCount, d_successCount, NUM_THREADS * sizeof(uint32_t),
 			   cudaMemcpyDeviceToHost);
-	int totalSuccessCount = 0;
-	for (int t = 0; t < NUM_THREADS; t++) {
+	uint32_t totalSuccessCount = 0;
+	for (uint16_t t = 0; t < NUM_THREADS; t++) {
 		totalSuccessCount += h_successCount[t];
 	}
-	double probability = (double)totalSuccessCount / totalSimulations;
+	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	clock_gettime(CLOCK_MONOTONIC, &end_time);
 	double elapsed_time =

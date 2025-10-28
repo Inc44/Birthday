@@ -1,14 +1,14 @@
-// cargo run --release
+// cargo run --release -q
 use std::sync::mpsc;
 use std::thread;
 use std::time::Instant;
 const DAYS_IN_YEAR: usize = 365;
-const NUM_THREADS: usize = 768;
+const NUM_THREADS: u32 = 768;
 const PEOPLE: u8 = 24;
-const TOTAL_SIMULATIONS: usize = 1_000_000;
+const TOTAL_SIMULATIONS: u32 = 1_000_000;
 const MULTIPLIER: u32 = 1664525;
 const INCREMENT: u32 = 1013904223;
-fn simulate(simulations: usize, sender: mpsc::Sender<usize>, thread_id: u64) {
+fn simulate(simulations: u32, sender: mpsc::Sender<usize>, thread_id: u64) {
     let seed = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
@@ -43,7 +43,7 @@ fn main() {
     for _ in 0..NUM_THREADS {
         total_success_count += receiver.recv().unwrap();
     }
-    let probability = total_success_count as f64 / TOTAL_SIMULATIONS as f64;
+    let probability = total_success_count as f32 / TOTAL_SIMULATIONS as f32;
     println!("Probability: {:.9}", probability);
     let elapsed_time = start_time.elapsed();
     println!("Execution Time: {:.3} s", elapsed_time.as_secs_f64());
