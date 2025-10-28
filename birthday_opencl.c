@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 int main() {
 	struct timespec start_time, end_time;
@@ -29,24 +30,45 @@ int main() {
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
 	size_t block_size = (size_t)BLOCK_SIZE;
-	uint16_t days_in_year = DAYS_IN_YEAR;
-	uint16_t num_threads = NUM_THREADS;
-	uint8_t people = PEOPLE;
+	uint32_t days_in_year = DAYS_IN_YEAR;
+	uint32_t num_threads = NUM_THREADS;
+	uint32_t people = PEOPLE;
 	uint32_t totalSimulations = TOTAL_SIMULATIONS;
 	uint32_t multiplier = MULTIPLIER;
 	uint32_t increment = INCREMENT;
 	size_t threads_size = (size_t)num_threads;
 	cl_mem deviceSuccessCount;
 	uint32_t* hostSuccessCount =
-		(uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+		(uint32_t*)malloc(num_threads * sizeof(uint32_t));
+	cl_uint num_platforms;
 	cl_platform_id platform;
+	cl_uint num_devices;
 	cl_device_id device;
 	cl_context context;
 	cl_command_queue queue;
 	cl_program program;
 	cl_kernel kernel;
-	clGetPlatformIDs(1, &platform, NULL);
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_DEFAULT, 1, &device, NULL);
+	clGetPlatformIDs(0, NULL, &num_platforms);
+	cl_platform_id* platforms =
+		(cl_platform_id*)malloc(num_platforms * sizeof(cl_platform_id));
+	clGetPlatformIDs(num_platforms, platforms, NULL);
+	platform = platforms[0];
+	char vendor[block_size];
+	for (cl_uint i = 0; i < num_platforms; ++i) {
+		clGetPlatformInfo(platforms[i], CL_PLATFORM_VENDOR, sizeof(vendor),
+						  vendor, NULL);
+		if (strstr(vendor, "NVIDIA")) {
+			platform = platforms[i];
+			break;
+		}
+	}
+	free(platforms);
+	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, NULL, &num_devices);
+	cl_device_id* devices =
+		(cl_device_id*)malloc(num_devices * sizeof(cl_device_id));
+	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, num_devices, devices, NULL);
+	device = devices[0];
+	free(devices);
 	context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
 	queue = clCreateCommandQueueWithProperties(context, device, NULL, NULL);
 	const char* simulate =
@@ -89,9 +111,9 @@ int main() {
 	clSetKernelArg(kernel, 0, sizeof(uint32_t), &totalSimulations);
 	clSetKernelArg(kernel, 1, sizeof(cl_mem), &deviceSuccessCount);
 	clSetKernelArg(kernel, 2, sizeof(uint32_t), &seed);
-	clSetKernelArg(kernel, 3, sizeof(uint16_t), &days_in_year);
-	clSetKernelArg(kernel, 4, sizeof(uint8_t), &people);
-	clSetKernelArg(kernel, 5, sizeof(uint16_t), &num_threads);
+	clSetKernelArg(kernel, 3, sizeof(uint32_t), &days_in_year);
+	clSetKernelArg(kernel, 4, sizeof(uint32_t), &people);
+	clSetKernelArg(kernel, 5, sizeof(uint32_t), &num_threads);
 	clSetKernelArg(kernel, 6, sizeof(uint32_t), &multiplier);
 	clSetKernelArg(kernel, 7, sizeof(uint32_t), &increment);
 	clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &threads_size, &block_size,
@@ -100,7 +122,7 @@ int main() {
 						num_threads * sizeof(uint32_t), hostSuccessCount, 0,
 						NULL, NULL);
 	uint32_t totalSuccessCount = 0;
-	for (uint16_t t = 0; t < num_threads; t++) {
+	for (uint32_t t = 0; t < num_threads; t++) {
 		totalSuccessCount += hostSuccessCount[t];
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;

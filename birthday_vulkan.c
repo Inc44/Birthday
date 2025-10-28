@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 typedef struct {
 	uint32_t simulations;
@@ -71,12 +72,6 @@ const char* SIMULATE =
 	"	}"
 	"	deviceSuccessCount[threadId] = localSuccessCount;"
 	"}";
-size_t strlen(const char* str) {
-	size_t n = 0;
-	while (str[n])
-		n++;
-	return n;
-}
 void write_shader() {
 	FILE* file = fopen("birthday.comp", "wb");
 	size_t n = strlen(SIMULATE);
