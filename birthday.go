@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	days_in_year         = 365
+	daysInYear           = 365
 	numThreads           = 768
 	people               = 24
 	totalSimulations     = 1_000_000
@@ -23,10 +23,10 @@ func simulate(threadId int, simulations int, successCount *[]int, wg *sync.WaitG
 	state := uint32(seed ^ int64(threadId))
 	localSuccessCount := 0
 	for sim := 0; sim < simulationsPerThread; sim++ {
-		var birthdays [days_in_year]int
+		var birthdays [daysInYear]int
 		for i := 0; i < people; i++ {
 			state = state*multiplier + increment
-			birthday := int(state % days_in_year)
+			birthday := int(state % daysInYear)
 			birthdays[birthday]++
 		}
 		exactlyTwoCount := 0

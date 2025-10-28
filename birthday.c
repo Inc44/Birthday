@@ -24,57 +24,57 @@ typedef struct {
 } ThreadData;
 void* simulate(void* arg) {
 	ThreadData* data = (ThreadData*)arg;
-	uint32_t simulationsPerThread = data->simulations / NUM_THREADS;
+	uint32_t simulations_per_thread = data->simulations / NUM_THREADS;
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
 	uint32_t state = seed ^ data->threadId;
-	uint32_t localSuccessCount = 0;
-	for (uint32_t sim = 0; sim < simulationsPerThread; sim++) {
+	uint32_t local_success_count = 0;
+	for (uint32_t sim = 0; sim < simulations_per_thread; sim++) {
 		uint8_t birthdays[DAYS_IN_YEAR] = {0};
 		for (uint8_t i = 0; i < PEOPLE; i++) {
 			state = state * MULTIPLIER + INCREMENT;
 			uint16_t birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}
-		uint8_t exactlyTwoCount = 0;
+		uint8_t exactly_two_count = 0;
 		for (uint16_t i = 0; i < DAYS_IN_YEAR; i++) {
 			if (birthdays[i] == 2) {
-				exactlyTwoCount++;
+				exactly_two_count++;
 			}
 		}
-		if (exactlyTwoCount == 1) {
-			localSuccessCount++;
+		if (exactly_two_count == 1) {
+			local_success_count++;
 		}
 	}
-	data->successCount[data->threadId] = localSuccessCount;
+	data->successCount[data->threadId] = local_success_count;
 	pthread_exit(NULL);
 }
 int main() {
 	struct timespec start_time, end_time;
 	clock_gettime(CLOCK_MONOTONIC, &start_time);
-	uint32_t* successCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+	uint32_t* success_count = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
 	pthread_t threads[NUM_THREADS];
-	ThreadData threadData[NUM_THREADS];
+	ThreadData thread_data[NUM_THREADS];
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		threadData[t].simulations = TOTAL_SIMULATIONS;
-		threadData[t].threadId = t;
-		threadData[t].successCount = successCount;
-		pthread_create(&threads[t], NULL, simulate, (void*)&threadData[t]);
+		thread_data[t].simulations = TOTAL_SIMULATIONS;
+		thread_data[t].threadId = t;
+		thread_data[t].successCount = success_count;
+		pthread_create(&threads[t], NULL, simulate, (void*)&thread_data[t]);
 	}
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
 		pthread_join(threads[t], NULL);
 	}
-	uint32_t totalSuccessCount = 0;
+	uint32_t total_success_count = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		totalSuccessCount += successCount[t];
+		total_success_count += success_count[t];
 	}
-	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
+	double probability = (double)total_success_count / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	clock_gettime(CLOCK_MONOTONIC, &end_time);
 	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
 						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
 	printf("Execution Time: %.3f s\n", elapsed_time);
-	free(successCount);
+	free(success_count);
 	return 0;
 }

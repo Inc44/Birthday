@@ -48,18 +48,19 @@ int main() {
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
-	uint32_t *deviceSuccessCount, *hostSuccessCount;
-	cudaMalloc((void**)&deviceSuccessCount, NUM_THREADS * sizeof(uint32_t));
-	hostSuccessCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
-	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS, deviceSuccessCount,
-										 seed);
-	cudaMemcpy(hostSuccessCount, deviceSuccessCount,
+	uint32_t* device_success_count;
+	cudaMalloc((void**)&device_success_count, NUM_THREADS * sizeof(uint32_t));
+	uint32_t* host_success_count =
+		(uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS,
+										 device_success_count, seed);
+	cudaMemcpy(host_success_count, device_success_count,
 			   NUM_THREADS * sizeof(uint32_t), cudaMemcpyDeviceToHost);
-	uint32_t totalSuccessCount = 0;
+	uint32_t total_success_count = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		totalSuccessCount += hostSuccessCount[t];
+		total_success_count += host_success_count[t];
 	}
-	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
+	double probability = (double)total_success_count / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	clock_gettime(CLOCK_MONOTONIC, &end_time);
 	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +

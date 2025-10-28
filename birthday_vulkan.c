@@ -51,13 +51,12 @@ const char* SIMULATE =
 	"layout(push_constant) uniform ThreadData {"
 	"	uint simulations;"
 	"	uint seed;"
-	"	uint days_in_year;"
+	"	uint daysInYear;"
 	"	uint people;"
-	"	uint num_threads;"
+	"	uint numThreads;"
 	"	uint multiplier;"
 	"	uint increment;"
-	"}"
-	"pushConstants;"
+	"} threadData;"
 	"layout(local_size_x = 32) in;"
 	"layout(std430, binding = 0) buffer OutBuf {"
 	"	uint deviceSuccessCount[];"
@@ -65,21 +64,21 @@ const char* SIMULATE =
 	"void main() {"
 	"	uint threadId = gl_GlobalInvocationID.x;"
 	"	uint simulationsPerThread ="
-	"		pushConstants.simulations / pushConstants.num_threads;"
+	"		threadData.simulations / threadData.numThreads;"
 	"	uint localSuccessCount = 0;"
-	"	uint state = pushConstants.seed ^ threadId;"
+	"	uint state = threadData.seed ^ threadId;"
 	"	uint birthdays[365];"
-	"	for (uint sim = 0; sim < simulationsPerThread; ++sim) {"
-	"		for (uint i = 0; i < pushConstants.days_in_year; ++i)"
+	"	for (uint sim = 0; sim < simulationsPerThread; sim++) {"
+	"		for (uint i = 0; i < threadData.daysInYear; i++)"
 	"			birthdays[i] = 0;"
-	"		for (uint i = 0; i < pushConstants.people; ++i) {"
-	"			state = state * pushConstants.multiplier + "
-	"pushConstants.increment;"
-	"			uint birthday = state % pushConstants.days_in_year;"
+	"		for (uint i = 0; i < threadData.people; i++) {"
+	"			state = state * threadData.multiplier + "
+	"threadData.increment;"
+	"			uint birthday = state % threadData.daysInYear;"
 	"			birthdays[birthday]++;"
 	"		}"
 	"		uint exactlyTwoCount = 0;"
-	"		for (uint i = 0; i < pushConstants.days_in_year; ++i)"
+	"		for (uint i = 0; i < threadData.daysInYear; i++)"
 	"			if (birthdays[i] == 2)"
 	"				exactlyTwoCount++;"
 	"		if (exactlyTwoCount == 1)"
@@ -106,12 +105,12 @@ void* read_spv(size_t* n) {
 	*n = size;
 	return spv;
 }
-uint8_t find_memory_type(uint8_t memoryTypeBits,
+uint8_t find_memory_type(uint8_t memory_type_bits,
 						 VkMemoryPropertyFlags flags,
-						 VkPhysicalDeviceMemoryProperties* memoryProperties) {
-	for (uint8_t i = 0; i < memoryProperties->memoryTypeCount; i++)
-		if ((memoryTypeBits & (1u << i)) &&
-			(memoryProperties->memoryTypes[i].propertyFlags & flags) == flags)
+						 VkPhysicalDeviceMemoryProperties* memory_properties) {
+	for (uint8_t i = 0; i < memory_properties->memoryTypeCount; i++)
+		if ((memory_type_bits & (1u << i)) &&
+			(memory_properties->memoryTypes[i].propertyFlags & flags) == flags)
 			return i;
 	exit(1);
 }
@@ -121,7 +120,7 @@ int main() {
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
-	uint32_t* hostSuccessCount;
+	uint32_t* host_success_count;
 	VkInstance instance;
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 	VkPhysicalDeviceProperties physical_device_properties;
@@ -352,11 +351,10 @@ int main() {
 		.commandBufferCount = 1};
 	vkAllocateCommandBuffers(device, &command_buffer_allocation_info,
 							 &command_buffer);
-	ThreadData push_constants = {
-		(uint32_t)TOTAL_SIMULATIONS, (uint32_t)seed,
-		(uint32_t)DAYS_IN_YEAR,		 (uint32_t)PEOPLE,
-		(uint32_t)NUM_THREADS,		 (uint32_t)MULTIPLIER,
-		(uint32_t)INCREMENT};
+	ThreadData thread_data = {(uint32_t)TOTAL_SIMULATIONS, (uint32_t)seed,
+							  (uint32_t)DAYS_IN_YEAR,	   (uint32_t)PEOPLE,
+							  (uint32_t)NUM_THREADS,	   (uint32_t)MULTIPLIER,
+							  (uint32_t)INCREMENT};
 	VkCommandBufferBeginInfo command_buffer_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		.pNext = NULL,
@@ -368,7 +366,7 @@ int main() {
 							pipeline_layout, 0, 1, &descriptor_set, 0, NULL);
 	vkCmdPushConstants(command_buffer, pipeline_layout,
 					   VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(ThreadData),
-					   &push_constants);
+					   &thread_data);
 	vkCmdDispatch(command_buffer, group_count_x, 1, 1);
 	vkEndCommandBuffer(command_buffer);
 	VkSubmitInfo submit_info = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -383,13 +381,13 @@ int main() {
 	vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
 	vkQueueWaitIdle(queue);
 	vkMapMemory(device, device_memory, 0, VK_WHOLE_SIZE, 0,
-				(void**)&hostSuccessCount);
-	uint32_t totalSuccessCount = 0;
+				(void**)&host_success_count);
+	uint32_t total_success_count = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		totalSuccessCount += hostSuccessCount[t];
+		total_success_count += host_success_count[t];
 	}
 	vkUnmapMemory(device, device_memory);
-	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
+	double probability = (double)total_success_count / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	clock_gettime(CLOCK_MONOTONIC, &end_time);
 	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +

@@ -22,7 +22,7 @@ if (!isMainThread)
 	const seed = Number(process.hrtime.bigint());
 	let state = (seed ^ threadId) >>> 0;
 	const birthdays = new Uint8Array(DAYS_IN_YEAR);
-	for (let s = 0; s < simulationsPerThread; s++)
+	for (let sim = 0; sim < simulationsPerThread; sim++)
 	{
 		birthdays.fill(0);
 		for (let i = 0; i < PEOPLE; i++)
@@ -42,7 +42,7 @@ if (!isMainThread)
 }
 else
 {
-	const start_time = process.hrtime.bigint();
+	const startTime = process.hrtime.bigint();
 	const threads = Math.min(NUM_THREADS, os.cpus()
 		.length);
 	const simulationsPerThread = Math.floor(TOTAL_SIMULATIONS / threads);
@@ -69,9 +69,9 @@ else
 			{
 				const probability = totalSuccessCount / TOTAL_SIMULATIONS;
 				console.log(`Probability: ${probability.toFixed(9)}`);
-				const end_time = process.hrtime.bigint();
-				const elapsed_time = Number(end_time - start_time) / 1e9;
-				console.log(`Execution Time: ${elapsed_time.toFixed(3)} s`);
+				const endTime = process.hrtime.bigint();
+				const elapsedTime = Number(endTime - startTime) / 1e9;
+				console.log(`Execution Time: ${elapsedTime.toFixed(3)} s`);
 			}
 		});
 	}

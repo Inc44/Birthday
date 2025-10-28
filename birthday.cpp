@@ -15,44 +15,46 @@ enum {
 	MULTIPLIER = 1664525,
 	INCREMENT = 1013904223
 };
-void simulate(uint32_t simulations, uint16_t threadId, uint32_t* successCount) {
-	uint32_t simulationsPerThread = simulations / NUM_THREADS;
+void simulate(uint32_t simulations,
+			  uint16_t thread_id,
+			  uint32_t* success_count) {
+	uint32_t simulations_per_thread = simulations / NUM_THREADS;
 	uint64_t seed = (uint64_t)chrono::duration_cast<chrono::nanoseconds>(
 						chrono::steady_clock::now().time_since_epoch())
 						.count();
-	uint32_t state = seed ^ threadId;
-	uint32_t localSuccessCount = 0;
-	for (uint32_t sim = 0; sim < simulationsPerThread; sim++) {
+	uint32_t state = seed ^ thread_id;
+	uint32_t local_success_count = 0;
+	for (uint32_t sim = 0; sim < simulations_per_thread; sim++) {
 		uint8_t birthdays[DAYS_IN_YEAR] = {0};
 		for (uint8_t i = 0; i < PEOPLE; i++) {
 			state = state * MULTIPLIER + INCREMENT;
 			uint16_t birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}
-		uint8_t exactlyTwoCount = 0;
+		uint8_t exactly_two_count = 0;
 		for (uint16_t i = 0; i < DAYS_IN_YEAR; i++) {
 			if (birthdays[i] == 2)
-				exactlyTwoCount++;
+				exactly_two_count++;
 		}
-		if (exactlyTwoCount == 1)
-			localSuccessCount++;
+		if (exactly_two_count == 1)
+			local_success_count++;
 	}
-	successCount[threadId] = localSuccessCount;
+	success_count[thread_id] = local_success_count;
 }
 int main() {
 	chrono::steady_clock::time_point start_time = chrono::steady_clock::now();
-	vector<uint32_t> successCount(NUM_THREADS);
+	vector<uint32_t> success_count(NUM_THREADS);
 	vector<thread> threads;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
 		threads.emplace_back(simulate, TOTAL_SIMULATIONS, t,
-							 successCount.data());
+							 success_count.data());
 	}
 	for (thread& t : threads)
 		t.join();
-	uint32_t totalSuccessCount = 0;
+	uint32_t total_success_count = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++)
-		totalSuccessCount += successCount[t];
-	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
+		total_success_count += success_count[t];
+	double probability = (double)total_success_count / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	chrono::steady_clock::time_point end_time = chrono::steady_clock::now();
 	double elapsed_time =
