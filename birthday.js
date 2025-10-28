@@ -12,6 +12,8 @@ const DAYS_IN_YEAR = 365;
 const PEOPLE = 24;
 const TOTAL_SIMULATIONS = 1_000_000;
 const NUM_THREADS = 768;
+const MULTIPLIER = 1664525;
+const INCREMENT = 1013904223;
 if (!isMainThread)
 {
 	const threadId = workerData.threadId;
@@ -25,7 +27,7 @@ if (!isMainThread)
 		birthdays.fill(0);
 		for (let i = 0; i < PEOPLE; i++)
 		{
-			state = (state * 1664525 + 1013904223) >>> 0;
+			state = (state * MULTIPLIER + INCREMENT) >>> 0;
 			const birthday = state % DAYS_IN_YEAR;
 			birthdays[birthday]++;
 		}

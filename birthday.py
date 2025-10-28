@@ -1,13 +1,14 @@
 # python -OO birthday.py
+from typing import Final
 import threading
 import time
 
-DAYS_IN_YEAR = 365
-NUM_THREADS = 768
-PEOPLE = 24
-TOTAL_SIMULATIONS = 1_000_000
-MULTIPLIER = 1664525
-INCREMENT = 1013904223
+DAYS_IN_YEAR: Final[int] = 365
+NUM_THREADS: Final[int] = 768
+PEOPLE: Final[int] = 24
+TOTAL_SIMULATIONS: Final[int] = 1_000_000
+MULTIPLIER: Final[int] = 1664525
+INCREMENT: Final[int] = 1013904223
 
 
 class ThreadData:

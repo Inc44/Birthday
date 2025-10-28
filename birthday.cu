@@ -1,19 +1,21 @@
 // nvcc -o birthday birthday.cu -O3 -arch=sm_75 && ./birthday for GTX 1660 SUPER
 // nvcc -o birthday birthday.cu -O3 -arch=sm_89 && ./birthday for RTX 4060 TI
-#define BLOCK_SIZE 32
-#define DAYS_IN_YEAR 365
-#define NUM_BLOCKS (NUM_THREADS / BLOCK_SIZE)
-#define NUM_THREADS 768	 // for GTX 1660 SUPER
-// #define NUM_THREADS 2176 for RTX 4060 TI
-#define PEOPLE 24
-#define TOTAL_SIMULATIONS 1000000
-#define MULTIPLIER 1664525
-#define INCREMENT 1013904223
 #include <cuda_runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdint.h>
+enum {
+	BLOCK_SIZE = 32,
+	DAYS_IN_YEAR = 365,
+	NUM_THREADS = 768,	// for GTX 1660 SUPER
+	// NUM_THREADS = 2176, for RTX 4060 TI
+	PEOPLE = 24,
+	TOTAL_SIMULATIONS = 1000000,
+	MULTIPLIER = 1664525,
+	INCREMENT = 1013904223,
+	NUM_BLOCKS = (NUM_THREADS / BLOCK_SIZE)
+};
 __global__ void simulate(uint32_t simulations,
 						 uint32_t* deviceSuccessCount,
 						 uint64_t seed) {
@@ -51,8 +53,8 @@ int main() {
 	hostSuccessCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
 	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS, deviceSuccessCount,
 										 seed);
-	cudaMemcpy(hostSuccessCount, deviceSuccessCount, NUM_THREADS * sizeof(uint32_t),
-			   cudaMemcpyDeviceToHost);
+	cudaMemcpy(hostSuccessCount, deviceSuccessCount,
+			   NUM_THREADS * sizeof(uint32_t), cudaMemcpyDeviceToHost);
 	uint32_t totalSuccessCount = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
 		totalSuccessCount += hostSuccessCount[t];
@@ -60,8 +62,8 @@ int main() {
 	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
 	clock_gettime(CLOCK_MONOTONIC, &end_time);
-	double elapsed_time =
-		(end_time.tv_sec - start_time.tv_sec) + 1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
+	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
+						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
 	printf("Execution Time: %.3f s\n", elapsed_time);
 	return 0;
 }

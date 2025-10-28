@@ -22,20 +22,22 @@ __attribute__((weak)) const char* __lsan_default_suppressions(void) {
 #endif
 #endif
 #define CL_TARGET_OPENCL_VERSION 300
-#define BLOCK_SIZE 32
-#define DAYS_IN_YEAR 365
-#define NUM_THREADS 768	 // for GTX 1660 SUPER
-// #define NUM_THREADS 2176 for RTX 4060 TI and Intel Arc
-#define PEOPLE 24
-#define TOTAL_SIMULATIONS 1000000
-#define MULTIPLIER 1664525
-#define INCREMENT 1013904223
 #include <CL/cl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+enum {
+	BLOCK_SIZE = 32,
+	DAYS_IN_YEAR = 365,
+	NUM_THREADS = 768,	// for GTX 1660 SUPER
+	// NUM_THREADS = 2176, for RTX 4060 TI and Intel Arc
+	PEOPLE = 24,
+	TOTAL_SIMULATIONS = 1000000,
+	MULTIPLIER = 1664525,
+	INCREMENT = 1013904223
+};
 int main() {
 	struct timespec start_time, end_time;
 	clock_gettime(CLOCK_MONOTONIC, &start_time);

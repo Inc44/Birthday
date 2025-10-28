@@ -4,17 +4,19 @@
 // zig c++ -o birthday birthday.c -Ofast && ./birthday
 // clang -o birthday birthday.c -O3 -ffast-math && ./birthday
 // clang++ -o birthday birthday.c -O3 -ffast-math && ./birthday
-#define DAYS_IN_YEAR 365
-#define NUM_THREADS 768
-#define PEOPLE 24
-#define TOTAL_SIMULATIONS 1000000
-#define MULTIPLIER 1664525
-#define INCREMENT 1013904223
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+enum {
+	DAYS_IN_YEAR = 365,
+	NUM_THREADS = 768,
+	PEOPLE = 24,
+	TOTAL_SIMULATIONS = 1000000,
+	MULTIPLIER = 1664525,
+	INCREMENT = 1013904223
+};
 typedef struct {
 	uint32_t simulations;
 	uint16_t threadId;

@@ -1,18 +1,20 @@
 // g++ -o birthday birthday.cpp -Ofast && ./birthday
 // zig c++ -o birthday birthday.cpp -Ofast && ./birthday
 // clang++ -o birthday birthday.cpp -O3 -ffast-math && ./birthday
-#define DAYS_IN_YEAR 365
-#define NUM_THREADS 768
-#define PEOPLE 24
-#define TOTAL_SIMULATIONS 1000000
-#define MULTIPLIER 1664525
-#define INCREMENT 1013904223
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <thread>
 #include <vector>
 using namespace std;
+enum {
+	DAYS_IN_YEAR = 365,
+	NUM_THREADS = 768,
+	PEOPLE = 24,
+	TOTAL_SIMULATIONS = 1000000,
+	MULTIPLIER = 1664525,
+	INCREMENT = 1013904223
+};
 void simulate(uint32_t simulations, uint16_t threadId, uint32_t* successCount) {
 	uint32_t simulationsPerThread = simulations / NUM_THREADS;
 	uint64_t seed = (uint64_t)chrono::duration_cast<chrono::nanoseconds>(
