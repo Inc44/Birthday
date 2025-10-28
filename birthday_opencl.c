@@ -8,6 +8,19 @@
 // ./birthday_opencl
 // clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math &&
 // ./birthday_opencl
+#if defined(__SANITIZE_ADDRESS__) || \
+	(defined(__has_feature) &&       \
+	 (__has_feature(address_sanitizer) || __has_feature(leak_sanitizer)))
+#ifdef __cplusplus
+extern "C" {
+#endif
+__attribute__((weak)) const char* __lsan_default_suppressions(void) {
+	return "leak:libOpenCL.so";
+}
+#ifdef __cplusplus
+}
+#endif
+#endif
 #define CL_TARGET_OPENCL_VERSION 300
 #define BLOCK_SIZE 32
 #define DAYS_IN_YEAR 365
@@ -53,7 +66,7 @@ int main() {
 		(cl_platform_id*)malloc(num_platforms * sizeof(cl_platform_id));
 	clGetPlatformIDs(num_platforms, platforms, NULL);
 	platform = platforms[0];
-	char vendor[block_size];
+	char vendor[BLOCK_SIZE];
 	for (cl_uint i = 0; i < num_platforms; ++i) {
 		clGetPlatformInfo(platforms[i], CL_PLATFORM_VENDOR, sizeof(vendor),
 						  vendor, NULL);
@@ -121,6 +134,7 @@ int main() {
 	clEnqueueReadBuffer(queue, deviceSuccessCount, CL_TRUE, 0,
 						num_threads * sizeof(uint32_t), hostSuccessCount, 0,
 						NULL, NULL);
+	clFinish(queue);
 	uint32_t totalSuccessCount = 0;
 	for (uint32_t t = 0; t < num_threads; t++) {
 		totalSuccessCount += hostSuccessCount[t];

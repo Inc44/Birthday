@@ -73,5 +73,6 @@ int main() {
 	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
 						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
 	printf("Execution Time: %.3f s\n", elapsed_time);
+	free(successCount);
 	return 0;
 }

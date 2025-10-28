@@ -177,6 +177,11 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `clang -o birthday birthday.c -O3 -ffast-math`
 - Execution: `./birthday`
 
+### C/C++/OpenCL/Vulkan Checked
+
+- Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
+- Execution: `./birthday`
+
 ## 🚧 TODO
 
 - [ ] **Assembly implementation**

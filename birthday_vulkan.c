@@ -8,6 +8,19 @@
 // ./birthday_vulkan
 // clang++ -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math &&
 // ./birthday_vulkan
+#if defined(__SANITIZE_ADDRESS__) || \
+	(defined(__has_feature) &&       \
+	 (__has_feature(address_sanitizer) || __has_feature(leak_sanitizer)))
+#ifdef __cplusplus
+extern "C" {
+#endif
+__attribute__((weak)) const char* __lsan_default_suppressions(void) {
+	return "leak:libdbus-1.so";
+}
+#ifdef __cplusplus
+}
+#endif
+#endif
 #define BLOCK_SIZE 32
 #define DAYS_IN_YEAR 365
 #define NUM_THREADS 768	 // for GTX 1660 SUPER
@@ -55,7 +68,6 @@ const char* SIMULATE =
 	"	uint state = pushConstants.seed ^ threadId;"
 	"	uint birthdays[365];"
 	"	for (uint sim = 0; sim < simulationsPerThread; ++sim) {"
-
 	"		for (uint i = 0; i < pushConstants.days_in_year; ++i)"
 	"			birthdays[i] = 0;"
 	"		for (uint i = 0; i < pushConstants.people; ++i) {"
@@ -133,11 +145,21 @@ int main() {
 	void* spv = read_spv(&spvlen);
 	VkApplicationInfo application_info = {
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		.pNext = NULL,
 		.pApplicationName = "birthday_vulkan",
+		.applicationVersion = 0,
+		.pEngineName = NULL,
+		.engineVersion = 0,
 		.apiVersion = VK_API_VERSION_1_0};
 	VkInstanceCreateInfo instance_info = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		.pApplicationInfo = &application_info};
+		.pNext = NULL,
+		.flags = 0,
+		.pApplicationInfo = &application_info,
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = NULL,
+		.enabledExtensionCount = 0,
+		.ppEnabledExtensionNames = NULL};
 	vkCreateInstance(&instance_info, NULL, &instance);
 	uint32_t physical_device_count;
 	vkEnumeratePhysicalDevices(instance, &physical_device_count, NULL);
@@ -184,13 +206,22 @@ int main() {
 	float queue_priority = 1.0f;
 	VkDeviceQueueCreateInfo device_queue_info = {
 		.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.queueFamilyIndex = (uint32_t)queue_family_index,
 		.queueCount = 1,
 		.pQueuePriorities = &queue_priority};
 	VkDeviceCreateInfo device_info = {
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.queueCreateInfoCount = 1,
-		.pQueueCreateInfos = &device_queue_info};
+		.pQueueCreateInfos = &device_queue_info,
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = NULL,
+		.enabledExtensionCount = 0,
+		.ppEnabledExtensionNames = NULL,
+		.pEnabledFeatures = NULL};
 	vkCreateDevice(physical_device, &device_info, NULL, &device);
 	vkGetDeviceQueue(device, queue_family_index, 0, &queue);
 	uint16_t group_count_x = (NUM_THREADS + BLOCK_SIZE - 1) / BLOCK_SIZE;
@@ -198,9 +229,13 @@ int main() {
 		(VkDeviceSize)group_count_x * BLOCK_SIZE * sizeof(uint32_t);
 	VkBufferCreateInfo buffer_info = {
 		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.size = device_size,
 		.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-		.sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+		.queueFamilyIndexCount = 0,
+		.pQueueFamilyIndices = NULL};
 	vkCreateBuffer(device, &buffer_info, NULL, &buffer);
 	vkGetBufferMemoryRequirements(device, buffer, &memory_requirements);
 	uint8_t memory_type =
@@ -210,6 +245,7 @@ int main() {
 						 &physical_device_memory_properties);
 	VkMemoryAllocateInfo memory_allocation_info = {
 		.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		.pNext = NULL,
 		.allocationSize = memory_requirements.size,
 		.memoryTypeIndex = memory_type};
 	vkAllocateMemory(device, &memory_allocation_info, NULL, &device_memory);
@@ -218,9 +254,12 @@ int main() {
 		.binding = 0,
 		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 		.descriptorCount = 1,
-		.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT};
+		.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
+		.pImmutableSamplers = NULL};
 	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_info = {
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.bindingCount = 1,
 		.pBindings = &descriptor_set_layout_binding};
 	vkCreateDescriptorSetLayout(device, &descriptor_set_layout_info, NULL,
@@ -229,6 +268,8 @@ int main() {
 		.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 1};
 	VkDescriptorPoolCreateInfo descriptor_pool_info = {
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.maxSets = 1,
 		.poolSizeCount = 1,
 		.pPoolSizes = &descriptor_pool_size};
@@ -236,6 +277,7 @@ int main() {
 						   &descriptor_pool);
 	VkDescriptorSetAllocateInfo descriptor_set_allocation_info = {
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		.pNext = NULL,
 		.descriptorPool = descriptor_pool,
 		.descriptorSetCount = 1,
 		.pSetLayouts = &descriptor_set_layout};
@@ -245,15 +287,20 @@ int main() {
 		.buffer = buffer, .offset = 0, .range = VK_WHOLE_SIZE};
 	VkWriteDescriptorSet write_descriptor_set = {
 		.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		.pNext = NULL,
 		.dstSet = descriptor_set,
 		.dstBinding = 0,
 		.dstArrayElement = 0,
 		.descriptorCount = 1,
 		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-		.pBufferInfo = &descriptor_buffer_info};
+		.pImageInfo = NULL,
+		.pBufferInfo = &descriptor_buffer_info,
+		.pTexelBufferView = NULL};
 	vkUpdateDescriptorSets(device, 1, &write_descriptor_set, 0, NULL);
 	VkShaderModuleCreateInfo shader_module_info = {
 		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.codeSize = spvlen,
 		.pCode = (const uint32_t*)spv};
 	vkCreateShaderModule(device, &shader_module_info, NULL, &shader_module);
@@ -263,6 +310,8 @@ int main() {
 		.size = sizeof(ThreadData)};
 	VkPipelineLayoutCreateInfo pipeline_layout_info = {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.setLayoutCount = 1,
 		.pSetLayouts = &descriptor_set_layout,
 		.pushConstantRangeCount = 1,
@@ -271,22 +320,31 @@ int main() {
 						   &pipeline_layout);
 	VkPipelineShaderStageCreateInfo pipeline_shader_stage_info = {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.stage = VK_SHADER_STAGE_COMPUTE_BIT,
 		.module = shader_module,
-		.pName = "main"};
+		.pName = "main",
+		.pSpecializationInfo = NULL};
 	VkComputePipelineCreateInfo compute_pipeline_info = {
 		.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
 		.stage = pipeline_shader_stage_info,
-		.layout = pipeline_layout};
+		.layout = pipeline_layout,
+		.basePipelineHandle = VK_NULL_HANDLE,
+		.basePipelineIndex = -1};
 	vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &compute_pipeline_info,
 							 NULL, &pipeline);
 	VkCommandPoolCreateInfo command_pool_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		.pNext = NULL,
 		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
 		.queueFamilyIndex = (uint32_t)queue_family_index};
 	vkCreateCommandPool(device, &command_pool_info, NULL, &command_pool);
 	VkCommandBufferAllocateInfo command_buffer_allocation_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = NULL,
 		.commandPool = command_pool,
 		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		.commandBufferCount = 1};
@@ -298,7 +356,10 @@ int main() {
 		(uint32_t)NUM_THREADS,		 (uint32_t)MULTIPLIER,
 		(uint32_t)INCREMENT};
 	VkCommandBufferBeginInfo command_buffer_info = {
-		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.pInheritanceInfo = NULL};
 	vkBeginCommandBuffer(command_buffer, &command_buffer_info);
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -309,8 +370,14 @@ int main() {
 	vkCmdDispatch(command_buffer, group_count_x, 1, 1);
 	vkEndCommandBuffer(command_buffer);
 	VkSubmitInfo submit_info = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+								.pNext = NULL,
+								.waitSemaphoreCount = 0,
+								.pWaitSemaphores = NULL,
+								.pWaitDstStageMask = NULL,
 								.commandBufferCount = 1,
-								.pCommandBuffers = &command_buffer};
+								.pCommandBuffers = &command_buffer,
+								.signalSemaphoreCount = 0,
+								.pSignalSemaphores = NULL};
 	vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
 	vkQueueWaitIdle(queue);
 	vkMapMemory(device, device_memory, 0, VK_WHOLE_SIZE, 0,
