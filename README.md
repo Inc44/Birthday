@@ -52,19 +52,24 @@ This benchmark was conducted on various hardware configurations and programming 
 
 ### Ryzen 5 1600 + 1660 Super
 
-#### CUDA
-- Compilation: `nvcc -o birthday birthday.cu -O3 -arch=sm_75`
+#### C Compiled as C using GNU Compiler
+- Compilation: `gcc -o birthday birthday.c -Ofast`
 - Execution: `./birthday`
-
-#### Rust
-- Optimized Run: `cargo run --release -q`
 
 #### C Compiled as C++ using GNU Compiler
 - Compilation: `g++ -o birthday birthday.c -Ofast`
 - Execution: `./birthday`
 
-#### C Compiled as C using GNU Compiler
-- Compilation: `gcc -o birthday birthday.c -Ofast`
+#### C Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday birthday.c -Ofast`
+- Execution: `./birthday`
+
+#### C Compiled as C++ using Zig Compiler
+- Compilation: `zig c++ -o birthday birthday.c -Ofast`
+- Execution: `./birthday`
+
+#### CUDA
+- Compilation: `nvcc -o birthday birthday.cu -O3 -arch=sm_75`
 - Execution: `./birthday`
 
 #### Go
@@ -77,46 +82,66 @@ This benchmark was conducted on various hardware configurations and programming 
 #### Python using NumPy
 - Optimized Execution: `python -OO birthday_numpy.py`
 
-#### C Compiled as C++ using Zig Compiler
-- Compilation: `zig c++ -o birthday birthday.c -Ofast`
-- Execution: `./birthday`
-
-#### C Compiled as C using Zig Compiler
-- Compilation: `zig cc -o birthday birthday.c -Ofast`
-- Execution: `./birthday`
+#### Rust
+- Optimized Run: `cargo run --release -q`
 
 ### Core Ultra 7 155H + 4060 Ti 16 GB
 
-#### Java
-- Compilation: `javac Birthday.java`
-- Execution: `java Birthday.java`
-
-#### OCaml
-- Compilation: `ocamlopt -I +unix -thread unix.cmxa threads.cmxa -o birthday birthday.ml`
+#### C Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday birthday.c -O3 -ffast-math`
 - Execution: `./birthday`
 
-#### Zig
-- Compilation: `zig build-exe birthday.zig -O ReleaseFast`
+#### C Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday birthday.c -O3 -ffast-math`
 - Execution: `./birthday`
 
-#### JavaScript
-- Execution: `node birthday.js`
+#### OpenCL Compiled as C using GNU Compiler
+- Compilation: `gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+- Execution: `./birthday_opencl`
 
 #### OpenCL Compiled as C++ using GNU Compiler
 - Compilation: `g++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
 - Execution: `./birthday_opencl`
 
-#### OpenCL Compiled as C using GNU Compiler
-- Compilation: `gcc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+#### OpenCL Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
 - Execution: `./birthday_opencl`
 
 #### OpenCL Compiled as C++ using Zig Compiler
 - Compilation: `zig c++ -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
 - Execution: `./birthday_opencl`
 
-#### OpenCL Compiled as C using Zig Compiler
-- Compilation: `zig cc -o birthday_opencl birthday_opencl.c -lOpenCL -Ofast`
+#### OpenCL Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math`
 - Execution: `./birthday_opencl`
+
+#### OpenCL Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math
+- Execution: `./birthday_opencl`
+
+#### Vulkan Compiled as C using GNU Compiler
+- Compilation: `gcc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C++ using GNU Compiler
+- Compilation: `g++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C++ using Zig Compiler
+- Compilation: `zig c++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
+- Execution: `./birthday_vulkan`
+
+#### Vulkan Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
+- Execution: `./birthday_vulkan`
 
 #### C++ Compiled using GNU Compiler
 - Compilation: `g++ -o birthday birthday.cpp -Ofast`
@@ -130,51 +155,26 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `clang++ -o birthday birthday.cpp -O3 -ffast-math`
 - Execution: `./birthday`
 
-#### Lua
-- Execution: `lua birthday.lua`
-
 #### C#
 - Compilation: `csc /o+ Birthday.cs`
 - Execution: `mono ./Birthday.exe`
 
-#### OpenCL Compiled as C++ using Clang Compiler
-- Compilation: `clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math
-- Execution: `./birthday_opencl`
+#### Java
+- Compilation: `javac Birthday.java`
+- Execution: `java Birthday.java`
 
-#### OpenCL Compiled as C using Clang Compiler
-- Compilation: `clang -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math`
-- Execution: `./birthday_opencl`
+#### JavaScript
+- Execution: `node birthday.js`
 
-#### Vulkan Compiled as C++ using GNU Compiler
-- Compilation: `g++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
-- Execution: `./birthday_vulkan`
+#### Lua
+- Execution: `lua birthday.lua`
 
-#### Vulkan Compiled as C using GNU Compiler
-- Compilation: `gcc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
-- Execution: `./birthday_vulkan`
-
-#### Vulkan Compiled as C++ using Zig Compiler
-- Compilation: `zig c++ -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
-- Execution: `./birthday_vulkan`
-
-#### Vulkan Compiled as C using Zig Compiler
-- Compilation: `zig cc -o birthday_vulkan birthday_vulkan.c -lvulkan -Ofast`
-- Execution: `./birthday_vulkan`
-
-#### Vulkan Compiled as C++ using Clang Compiler
-- Compilation: `clang++ -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
-- Execution: `./birthday_vulkan`
-
-#### Vulkan Compiled as C using Clang Compiler
-- Compilation: `clang -o birthday_vulkan birthday_vulkan.c -lvulkan -O3 -ffast-math`
-- Execution: `./birthday_vulkan`
-
-#### C Compiled as C++ using Clang Compiler
-- Compilation: `clang++ -o birthday birthday.c -O3 -ffast-math`
+#### OCaml
+- Compilation: `ocamlopt -I +unix -thread unix.cmxa threads.cmxa -o birthday birthday.ml`
 - Execution: `./birthday`
 
-#### C Compiled as C using Clang Compiler
-- Compilation: `clang -o birthday birthday.c -O3 -ffast-math`
+#### Zig
+- Compilation: `zig build-exe birthday.zig -O ReleaseFast`
 - Execution: `./birthday`
 
 ### C/C++/OpenCL/Vulkan Checked
