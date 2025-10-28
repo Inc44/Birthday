@@ -14,11 +14,11 @@ const TOTAL_SIMULATIONS = 1_000_000;
 const NUM_THREADS = 768;
 if (!isMainThread)
 {
-	const tid = workerData.threadId;
+	const threadId = workerData.threadId;
 	const simulationsPerThread = workerData.simulations;
 	let localSuccessCount = 0;
 	const seed = Number(process.hrtime.bigint());
-	let state = (seed ^ tid) >>> 0;
+	let state = (seed ^ threadId) >>> 0;
 	const birthdays = new Uint8Array(DAYS_IN_YEAR);
 	for (let s = 0; s < simulationsPerThread; s++)
 	{

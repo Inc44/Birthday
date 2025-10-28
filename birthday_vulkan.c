@@ -44,14 +44,14 @@ const char* SIMULATE =
 	"pushConstants;"
 	"layout(local_size_x = 32) in;"
 	"layout(std430, binding = 0) buffer OutBuf {"
-	"	uint successCount[];"
+	"	uint deviceSuccessCount[];"
 	"};"
 	"void main() {"
-	"	uint tid = gl_GlobalInvocationID.x;"
+	"	uint threadId = gl_GlobalInvocationID.x;"
 	"	uint simulationsPerThread ="
 	"		pushConstants.simulations / pushConstants.num_threads;"
 	"	uint localSuccessCount = 0;"
-	"	uint state = pushConstants.seed ^ tid;"
+	"	uint state = pushConstants.seed ^ threadId;"
 	"	uchar birthdays[365];"
 	"	for (uint sim = 0; sim < simulationsPerThread; ++sim) {"
 	"		for (int i = 0; i < pushConstants.days_in_year; ++i)"
@@ -69,7 +69,7 @@ const char* SIMULATE =
 	"		if (exactlyTwoCount == 1)"
 	"			localSuccessCount++;"
 	"	}"
-	"	successCount[tid] = localSuccessCount;"
+	"	deviceSuccessCount[threadId] = localSuccessCount;"
 	"}";
 size_t strlen(const char* str) {
 	size_t n = 0;
@@ -111,7 +111,7 @@ int main() {
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
-	uint32_t* h_successCount;
+	uint32_t* hostSuccessCount;
 	VkInstance instance;
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 	VkPhysicalDeviceProperties physical_device_properties;
@@ -318,10 +318,10 @@ int main() {
 	vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
 	vkQueueWaitIdle(queue);
 	vkMapMemory(device, device_memory, 0, VK_WHOLE_SIZE, 0,
-				(void**)&h_successCount);
+				(void**)&hostSuccessCount);
 	uint32_t totalSuccessCount = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		totalSuccessCount += h_successCount[t];
+		totalSuccessCount += hostSuccessCount[t];
 	}
 	vkUnmapMemory(device, device_memory);
 	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;

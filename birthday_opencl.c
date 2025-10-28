@@ -36,9 +36,9 @@ int main() {
 	uint32_t multiplier = MULTIPLIER;
 	uint32_t increment = INCREMENT;
 	size_t threads_size = (size_t)num_threads;
-	cl_mem d_successCount;
-	uint32_t* h_successCount;
-	h_successCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+	cl_mem deviceSuccessCount;
+	uint32_t* hostSuccessCount =
+		(uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
 	cl_platform_id platform;
 	cl_device_id device;
 	cl_context context;
@@ -51,17 +51,17 @@ int main() {
 	queue = clCreateCommandQueueWithProperties(context, device, NULL, NULL);
 	const char* simulate =
 		"__kernel void simulate(uint simulations,"
-		"					   __global uint* d_successCount,"
+		"					   __global uint* deviceSuccessCount,"
 		"					   uint seed,"
 		"					   uint days_in_year,"
 		"					   uint people,"
 		"					   uint num_threads,"
 		"					   uint multiplier,"
 		"					   uint increment) {"
-		"	size_t tid = get_global_id(0);"
+		"	size_t threadId = get_global_id(0);"
 		"	uint simulationsPerThread = simulations / num_threads;"
 		"	uint localSuccessCount = 0;"
-		"	uint state = seed ^ tid;"
+		"	uint state = seed ^ threadId;"
 		"	for (uint sim = 0; sim < simulationsPerThread; sim++) {"
 		"		uchar birthdays[365] = {0};"
 		"		for (int i = 0; i < people; i++) {"
@@ -79,15 +79,15 @@ int main() {
 		"			localSuccessCount++;"
 		"		}"
 		"	}"
-		"	d_successCount[(int)tid] = localSuccessCount;"
+		"	deviceSuccessCount[(int)threadId] = localSuccessCount;"
 		"}";
 	program = clCreateProgramWithSource(context, 1, &simulate, NULL, NULL);
 	clBuildProgram(program, 1, &device, NULL, NULL, NULL);
 	kernel = clCreateKernel(program, "simulate", NULL);
-	d_successCount = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-									num_threads * sizeof(uint32_t), NULL, NULL);
+	deviceSuccessCount = clCreateBuffer(
+		context, CL_MEM_WRITE_ONLY, num_threads * sizeof(uint32_t), NULL, NULL);
 	clSetKernelArg(kernel, 0, sizeof(uint32_t), &totalSimulations);
-	clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_successCount);
+	clSetKernelArg(kernel, 1, sizeof(cl_mem), &deviceSuccessCount);
 	clSetKernelArg(kernel, 2, sizeof(uint32_t), &seed);
 	clSetKernelArg(kernel, 3, sizeof(uint16_t), &days_in_year);
 	clSetKernelArg(kernel, 4, sizeof(uint8_t), &people);
@@ -96,12 +96,12 @@ int main() {
 	clSetKernelArg(kernel, 7, sizeof(uint32_t), &increment);
 	clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &threads_size, &block_size,
 						   0, NULL, NULL);
-	clEnqueueReadBuffer(queue, d_successCount, CL_TRUE, 0,
-						num_threads * sizeof(uint32_t), h_successCount, 0, NULL,
-						NULL);
+	clEnqueueReadBuffer(queue, deviceSuccessCount, CL_TRUE, 0,
+						num_threads * sizeof(uint32_t), hostSuccessCount, 0,
+						NULL, NULL);
 	uint32_t totalSuccessCount = 0;
 	for (uint16_t t = 0; t < num_threads; t++) {
-		totalSuccessCount += h_successCount[t];
+		totalSuccessCount += hostSuccessCount[t];
 	}
 	double probability = (double)totalSuccessCount / totalSimulations;
 	printf("Probability: %.9f\n", probability);
@@ -109,8 +109,8 @@ int main() {
 	double elapsed_time = (end_time.tv_sec - start_time.tv_sec) +
 						  1e-9 * (end_time.tv_nsec - start_time.tv_nsec);
 	printf("Execution Time: %.3f s\n", elapsed_time);
-	free(h_successCount);
-	clReleaseMemObject(d_successCount);
+	free(hostSuccessCount);
+	clReleaseMemObject(deviceSuccessCount);
 	clReleaseKernel(kernel);
 	clReleaseProgram(program);
 	clReleaseCommandQueue(queue);

@@ -15,12 +15,12 @@
 #include <time.h>
 #include <stdint.h>
 __global__ void simulate(uint32_t simulations,
-						 uint32_t* d_successCount,
+						 uint32_t* deviceSuccessCount,
 						 uint64_t seed) {
-	uint16_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+	uint16_t threadId = blockIdx.x * blockDim.x + threadIdx.x;
 	uint32_t simulationsPerThread = simulations / NUM_THREADS;
 	uint32_t localSuccessCount = 0;
-	uint32_t state = seed ^ tid;
+	uint32_t state = seed ^ threadId;
 	for (uint32_t sim = 0; sim < simulationsPerThread; sim++) {
 		uint8_t birthdays[DAYS_IN_YEAR] = {0};
 		for (uint8_t i = 0; i < PEOPLE; i++) {
@@ -38,7 +38,7 @@ __global__ void simulate(uint32_t simulations,
 			localSuccessCount++;
 		}
 	}
-	d_successCount[tid] = localSuccessCount;
+	deviceSuccessCount[threadId] = localSuccessCount;
 }
 int main() {
 	struct timespec start_time, end_time;
@@ -46,16 +46,16 @@ int main() {
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	uint64_t seed = time.tv_sec * 1e9 + time.tv_nsec;
-	uint32_t *d_successCount, *h_successCount;
-	cudaMalloc((void**)&d_successCount, NUM_THREADS * sizeof(uint32_t));
-	h_successCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
-	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS, d_successCount,
+	uint32_t *deviceSuccessCount, *hostSuccessCount;
+	cudaMalloc((void**)&deviceSuccessCount, NUM_THREADS * sizeof(uint32_t));
+	hostSuccessCount = (uint32_t*)malloc(NUM_THREADS * sizeof(uint32_t));
+	simulate<<<NUM_BLOCKS, BLOCK_SIZE>>>(TOTAL_SIMULATIONS, deviceSuccessCount,
 										 seed);
-	cudaMemcpy(h_successCount, d_successCount, NUM_THREADS * sizeof(uint32_t),
+	cudaMemcpy(hostSuccessCount, deviceSuccessCount, NUM_THREADS * sizeof(uint32_t),
 			   cudaMemcpyDeviceToHost);
 	uint32_t totalSuccessCount = 0;
 	for (uint16_t t = 0; t < NUM_THREADS; t++) {
-		totalSuccessCount += h_successCount[t];
+		totalSuccessCount += hostSuccessCount[t];
 	}
 	double probability = (double)totalSuccessCount / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", probability);
