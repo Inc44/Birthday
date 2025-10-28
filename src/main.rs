@@ -8,20 +8,20 @@ const PEOPLE: u8 = 24;
 const TOTAL_SIMULATIONS: u32 = 1_000_000;
 const MULTIPLIER: u32 = 1664525;
 const INCREMENT: u32 = 1013904223;
-fn simulate(simulations: u32, sender: mpsc::Sender<usize>, thread_id: u64) {
+fn simulate(simulations: u32, sender: mpsc::Sender<u32>, thread_id: u64) {
     let seed = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    let mut state = (seed as u64 ^ thread_id) as u32;
-    let simulations_per_thread = simulations / NUM_THREADS;
-    let mut local_success_count = 0;
+    let mut state: u32 = (seed as u64 ^ thread_id) as u32;
+    let simulations_per_thread: u32 = simulations / NUM_THREADS;
+    let mut local_success_count: u32 = 0;
     for _ in 0..simulations_per_thread {
-        let mut birthdays = [0; DAYS_IN_YEAR];
+        let mut birthdays = [0u8; DAYS_IN_YEAR];
         for _ in 0..PEOPLE {
             state = state.wrapping_mul(MULTIPLIER).wrapping_add(INCREMENT);
             let birthday = (state as usize) % DAYS_IN_YEAR;
-            birthdays[birthday] += 1;
+            birthdays[birthday] = birthdays[birthday].wrapping_add(1);
         }
         let exactly_two_count = birthdays.iter().filter(|&&x| x == 2).count();
         if exactly_two_count == 1 {
@@ -32,14 +32,14 @@ fn simulate(simulations: u32, sender: mpsc::Sender<usize>, thread_id: u64) {
 }
 fn main() {
     let start_time = Instant::now();
-    let (sender, receiver) = mpsc::channel();
+    let (sender, receiver) = mpsc::channel::<u32>();
     for thread_id in 0..NUM_THREADS {
         let sender = sender.clone();
         thread::spawn(move || {
             simulate(TOTAL_SIMULATIONS, sender, thread_id as u64);
         });
     }
-    let mut total_success_count = 0;
+    let mut total_success_count: u32 = 0;
     for _ in 0..NUM_THREADS {
         total_success_count += receiver.recv().unwrap();
     }

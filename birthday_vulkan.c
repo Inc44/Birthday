@@ -37,7 +37,7 @@ const char* SIMULATE =
 	"	uint simulations;"
 	"	uint seed;"
 	"	uint days_in_year;"
-	"	uchar people;"
+	"	uint people;"
 	"	uint num_threads;"
 	"	uint multiplier;"
 	"	uint increment;"
@@ -53,18 +53,19 @@ const char* SIMULATE =
 	"		pushConstants.simulations / pushConstants.num_threads;"
 	"	uint localSuccessCount = 0;"
 	"	uint state = pushConstants.seed ^ threadId;"
-	"	uchar birthdays[365];"
+	"	uint birthdays[365];"
 	"	for (uint sim = 0; sim < simulationsPerThread; ++sim) {"
-	"		for (int i = 0; i < pushConstants.days_in_year; ++i)"
+
+	"		for (uint i = 0; i < pushConstants.days_in_year; ++i)"
 	"			birthdays[i] = 0;"
-	"		for (int i = 0; i < pushConstants.people; ++i) {"
+	"		for (uint i = 0; i < pushConstants.people; ++i) {"
 	"			state = state * pushConstants.multiplier + "
 	"pushConstants.increment;"
 	"			uint birthday = state % pushConstants.days_in_year;"
 	"			birthdays[birthday]++;"
 	"		}"
-	"		uchar exactlyTwoCount = 0;"
-	"		for (int i = 0; i < pushConstants.days_in_year; ++i)"
+	"		uint exactlyTwoCount = 0;"
+	"		for (uint i = 0; i < pushConstants.days_in_year; ++i)"
 	"			if (birthdays[i] == 2)"
 	"				exactlyTwoCount++;"
 	"		if (exactlyTwoCount == 1)"
@@ -293,8 +294,8 @@ int main() {
 							 &command_buffer);
 	ThreadData push_constants = {
 		(uint32_t)TOTAL_SIMULATIONS, (uint32_t)seed,
-		(uint16_t)DAYS_IN_YEAR,		 (uint8_t)PEOPLE,
-		(uint16_t)NUM_THREADS,		 (uint32_t)MULTIPLIER,
+		(uint32_t)DAYS_IN_YEAR,		 (uint32_t)PEOPLE,
+		(uint32_t)NUM_THREADS,		 (uint32_t)MULTIPLIER,
 		(uint32_t)INCREMENT};
 	VkCommandBufferBeginInfo command_buffer_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};

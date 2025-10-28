@@ -16,7 +16,7 @@ public static class Birthday
 		long seed = Stopwatch.GetTimestamp();
 		uint state = (uint)(seed ^ threadId);
 		int localSuccessCount = 0;
-		int[] birthdays = new int[DAYS_IN_YEAR];
+		var birthdays = new byte[DAYS_IN_YEAR];
 		for (int sim = 0; sim < simulationsPerThread; sim++)
 		{
 			for (int i = 0; i < DAYS_IN_YEAR; i++)
