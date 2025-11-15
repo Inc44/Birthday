@@ -38,6 +38,24 @@ output_file_name = "1_000_000.png"
 plot_execution_times(
 	commands_extracted, execution_times_extracted, plot_title, output_file_name
 )
+file_path = "10_000_000"
+data_entries = extract_data_entries(file_path)
+commands_extracted = [entry["Command"] for entry in data_entries]
+execution_times_extracted = [entry["Execution Time (s)"] for entry in data_entries]
+plot_title = "Execution Time by Command for 10 000 000 Dataset Size (Log Scale)"
+output_file_name = "10_000_000.png"
+plot_execution_times(
+	commands_extracted, execution_times_extracted, plot_title, output_file_name
+)
+file_path = "100_000_000"
+data_entries = extract_data_entries(file_path)
+commands_extracted = [entry["Command"] for entry in data_entries]
+execution_times_extracted = [entry["Execution Time (s)"] for entry in data_entries]
+plot_title = "Execution Time by Command for 100 000 000 Dataset Size (Log Scale)"
+output_file_name = "100_000_000.png"
+plot_execution_times(
+	commands_extracted, execution_times_extracted, plot_title, output_file_name
+)
 file_path = "1_000_000_000"
 data_entries = extract_data_entries(file_path)
 commands_extracted = [entry["Command"] for entry in data_entries]
