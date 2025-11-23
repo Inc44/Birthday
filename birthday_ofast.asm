@@ -50,12 +50,12 @@ simulate:
 	vpbroadcastd ymm0, xmm0						; Broadcast lower 4 bytes to all 32 bytes
 	vpxor		ymm1, ymm1, ymm1				; 0
 .simulations_per_thread:						; for (;;)
-	mov			rdi, rsp						; Load address of birthdays array
-	xor			eax, eax						; Prepare 0 to write
-	mov			ecx, DAYS_IN_YEAR / 8 + 3		; rep stosq loop counter
-	rep			stosq							; Store 8 bytes from accumulator and advance pointer
-	mov			sil, PEOPLE						; i = PEOPLE
-.people:										; for (;;)
+%assign i 0										; i = 0
+%rep DAYS_IN_YEAR / 32 + 1						; for (;;)
+	vmovdqu		[rsp + i], ymm1					; Load 32 bytes from birthdays[i] and zero them
+	%assign i i+32								; i += 32
+%endrep											; i < DAYS_IN_YEAR
+%rep PEOPLE										; for (i = 0;; i++)
 	; LCG
 	imul		r8d, r8d, MULTIPLIER			; state = state * MULTIPLIER
 	add			r8d, INCREMENT					; state = state + INCREMENT
@@ -64,19 +64,39 @@ simulate:
 	shr			rax, 32
 	; birthdays[birthday]++
 	inc			byte [rsp + rax]
-	dec			sil								; i--
-	jnz			.people							; i != 0
+%endrep											; i < PEOPLE
 	; AVX2 Vectorized Check
 	vpxor		ymm2, ymm2, ymm2				; exactly_two_count = 0
-	mov			cx, DAYS_IN_YEAR / 32 + 1		; i = DAYS_IN_YEAR / 32 + 1
-	mov			rdi, rsp						; Load address of birthdays array
-.days_in_year:									; for (;;)
-	vmovdqu		ymm3, [rdi]						; Load 32 bytes from birthdays[i]
-	vpcmpeqb	ymm3, ymm3, ymm0				; birthdays[i] == 2 then -1 else 0
-	vpsubb		ymm2, ymm2, ymm3				; exactly_two_count++
-	add			rdi, 32							; Advance pointer to next chunk of days
-	dec			cx								; i--
-	jnz			.days_in_year					; i != 0
+	vpxor		ymm3, ymm3, ymm3				; exactly_two_count_1 = 0
+	vpxor		ymm4, ymm4, ymm4				; exactly_two_count_2 = 0
+	vpxor		ymm5, ymm5, ymm5				; exactly_two_count_3 = 0
+%assign i 0										; i = 0
+%rep 3											; for (;;)
+	; Block 1
+	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
+	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
+	vpsubb		ymm2, ymm2, ymm6				; exactly_two_count++
+	%assign i i+32								; i += 32 Advance pointer to next chunk of days
+	; Block 2
+	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
+	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
+	vpsubb		ymm3, ymm3, ymm6				; exactly_two_count_1++
+	%assign i i+32								; i += 32 Advance pointer to next chunk of days
+	; Block 3
+	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
+	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
+	vpsubb		ymm4, ymm4, ymm6				; exactly_two_count_2++
+	%assign i i+32								; i += 32 Advance pointer to next chunk of days
+	; Block 4
+	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
+	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
+	vpsubb		ymm5, ymm5, ymm6				; exactly_two_count_3++
+	%assign i i+32								; i += 32 Advance pointer to next chunk of days
+%endrep											; i < DAYS_IN_YEAR
+	; exactly_two_count Sum
+	vpaddb		ymm2, ymm2, ymm3				; exactly_two_count += exactly_two_count_1
+	vpaddb		ymm4, ymm4, ymm5				; exactly_two_count_2 += exactly_two_count_3
+	vpaddb		ymm2, ymm2, ymm4				; exactly_two_count += exactly_two_count_2
 	; exactly_two_count Horizontal Sum
 	vpsadbw		ymm2, ymm2, ymm1				; Absolute sum of byte differences into 4 8-byte parts
 	vextracti128 xmm3, ymm2, 1					; Load higher 16 bytes of sum
