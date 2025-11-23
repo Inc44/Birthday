@@ -44,6 +44,11 @@ simulate:
 	mov			r8d, eax						; Convert state to lower 32 bits
 	xor			r9d, r9d						; local_success_count = 0
 	mov			r10d, SIMULATIONS_PER_THREAD	; sim = SIMULATIONS_PER_THREAD
+	; SSE2 Constants
+	mov			eax, 0x02020202					; Load 4 bytes with value 2
+	movd		xmm0, eax						; Load 4 bytes as lower 4 bytes
+	pshufd		xmm0, xmm0, 0					; Broadcast lower 4 bytes to all 16 bytes
+	pxor		xmm1, xmm1						; 0
 .simulations_per_thread:						; for (;;)
 	mov			rdi, rsp						; Load address of birthdays array
 	xor			eax, eax						; Prepare 0 to write
@@ -61,19 +66,24 @@ simulate:
 	inc			byte [rsp + rax]
 	dec			sil								; i--
 	jnz			.people							; i != 0
-	xor			sil, sil						; exactly_two_count = 0
-	mov			cx, DAYS_IN_YEAR				; i = DAYS_IN_YEAR
+	; SSE2 Vectorized Check
+	pxor		xmm2, xmm2						; exactly_two_count = 0
+	mov			cx, DAYS_IN_YEAR / 16 + 1		; i = DAYS_IN_YEAR / 16 + 1
 	mov			rdi, rsp						; Load address of birthdays array
 .days_in_year:									; for (;;)
-	mov			al, byte [rdi]					; Load byte from birthdays[i]
-	cmp			al, 2							; birthdays[i] == 2
-	jne			.exactly_two_count
-	inc			sil								; exactly_two_count++
-.exactly_two_count:
-	inc			rdi								; Advance pointer to next day
+	movdqu		xmm3, [rdi]						; Load 16 bytes from birthdays[i]
+	pcmpeqb		xmm3, xmm0						; birthdays[i] == 2 then -1 else 0
+	psubb		xmm2, xmm3						; exactly_two_count++
+	add			rdi, 16							; Advance pointer to next chunk of days
 	dec			cx								; i--
 	jnz			.days_in_year					; i != 0
-	cmp			sil, 1							; exactly_two_count == 1
+	; exactly_two_count Horizontal Sum
+	psadbw		xmm2, xmm1						; Absolute sum of byte differences into lower and higher 8 bytes
+	movq		rax, xmm2						; Load lower 8 bytes of sum
+	pshufd		xmm2, xmm2, 0x4E				; Swap lower and higher 8 bytes of sum
+	movq		rcx, xmm2						; Load higher 8 bytes of sum
+	add			rax, rcx						; exactly_two_count = sum
+	cmp			al, 1							; exactly_two_count == 1
 	jne			.local_success_count
 	inc			r9d								; local_success_count++
 .local_success_count:
