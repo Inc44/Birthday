@@ -27,11 +27,11 @@ section .bss
 section .text
 	global main
 simulate:
-	; Allocate 376 bytes on the stack:
+	; Allocate 392 bytes on the stack:
 	; 	365 bytes for birthdays array
-	; 	3 bytes for stack alignment padding (to a 16-byte boundary)
+	; 	19 bytes for vector padding (to a 32-byte boundary)
 	; 	8 bytes for return address pushed by 'call'
-	sub			rsp, 376
+	sub			rsp, 392
 	mov			r12, [rdi]						; Load thread ID value from first argument
 	; Seed
 	mov			edi, CLOCK_MONOTONIC			; Load clock ID
@@ -44,15 +44,15 @@ simulate:
 	mov			r8d, eax						; Convert state to lower 32 bits
 	xor			r9d, r9d						; local_success_count = 0
 	mov			r10d, SIMULATIONS_PER_THREAD	; sim = SIMULATIONS_PER_THREAD
-	; SSE2 Constants
+	; AVX2 Constants
 	mov			eax, 0x02020202					; Load 4 bytes with value 2
 	movd		xmm0, eax						; Load 4 bytes as lower 4 bytes
-	pshufd		xmm0, xmm0, 0					; Broadcast lower 4 bytes to all 16 bytes
-	pxor		xmm1, xmm1						; 0
+	vpbroadcastd ymm0, xmm0						; Broadcast lower 4 bytes to all 32 bytes
+	vpxor		ymm1, ymm1, ymm1				; 0
 .simulations_per_thread:						; for (;;)
 	mov			rdi, rsp						; Load address of birthdays array
 	xor			eax, eax						; Prepare 0 to write
-	mov			ecx, DAYS_IN_YEAR / 8 + 1		; rep stosq loop counter
+	mov			ecx, DAYS_IN_YEAR / 8 + 3		; rep stosq loop counter
 	rep			stosq							; Store 8 bytes from accumulator and advance pointer
 	mov			sil, PEOPLE						; i = PEOPLE
 .people:										; for (;;)
@@ -66,21 +66,23 @@ simulate:
 	inc			byte [rsp + rax]
 	dec			sil								; i--
 	jnz			.people							; i != 0
-	; SSE2 Vectorized Check
-	pxor		xmm2, xmm2						; exactly_two_count = 0
-	mov			cx, DAYS_IN_YEAR / 16 + 1		; i = DAYS_IN_YEAR / 16 + 1
+	; AVX2 Vectorized Check
+	vpxor		ymm2, ymm2, ymm2				; exactly_two_count = 0
+	mov			cx, DAYS_IN_YEAR / 32 + 1		; i = DAYS_IN_YEAR / 32 + 1
 	mov			rdi, rsp						; Load address of birthdays array
 .days_in_year:									; for (;;)
-	movdqu		xmm3, [rdi]						; Load 16 bytes from birthdays[i]
-	pcmpeqb		xmm3, xmm0						; birthdays[i] == 2 then -1 else 0
-	psubb		xmm2, xmm3						; exactly_two_count++
-	add			rdi, 16							; Advance pointer to next chunk of days
+	vmovdqu		ymm3, [rdi]						; Load 32 bytes from birthdays[i]
+	vpcmpeqb	ymm3, ymm3, ymm0				; birthdays[i] == 2 then -1 else 0
+	vpsubb		ymm2, ymm2, ymm3				; exactly_two_count++
+	add			rdi, 32							; Advance pointer to next chunk of days
 	dec			cx								; i--
 	jnz			.days_in_year					; i != 0
 	; exactly_two_count Horizontal Sum
-	psadbw		xmm2, xmm1						; Absolute sum of byte differences into lower and higher 8 bytes
+	vpsadbw		ymm2, ymm2, ymm1				; Absolute sum of byte differences into 4 8-byte parts
+	vextracti128 xmm3, ymm2, 1					; Load higher 16 bytes of sum
+	vpaddq		xmm2, xmm2, xmm3				; Add lower and higher 16 bytes of sum
 	movq		rax, xmm2						; Load lower 8 bytes of sum
-	pshufd		xmm2, xmm2, 0x4E				; Swap lower and higher 8 bytes of sum
+	vpshufd		xmm2, xmm2, 0x4E				; Swap lower and higher 8 bytes of sum
 	movq		rcx, xmm2						; Load higher 8 bytes of sum
 	add			rax, rcx						; exactly_two_count = sum
 	cmp			al, 1							; exactly_two_count == 1
