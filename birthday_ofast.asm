@@ -71,27 +71,23 @@ simulate:
 	vpxor		ymm4, ymm4, ymm4				; exactly_two_count_2 = 0
 	vpxor		ymm5, ymm5, ymm5				; exactly_two_count_3 = 0
 %assign i 0										; i = 0
-%rep 3											; for (;;)
-	; Block 1
-	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
-	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
-	vpsubb		ymm2, ymm2, ymm6				; exactly_two_count++
-	%assign i i+32								; i += 32 Advance pointer to next chunk of days
-	; Block 2
-	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
-	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
-	vpsubb		ymm3, ymm3, ymm6				; exactly_two_count_1++
-	%assign i i+32								; i += 32 Advance pointer to next chunk of days
-	; Block 3
-	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
-	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
-	vpsubb		ymm4, ymm4, ymm6				; exactly_two_count_2++
-	%assign i i+32								; i += 32 Advance pointer to next chunk of days
-	; Block 4
-	vmovdqu		ymm6, [rsp + i]					; Load 32 bytes from birthdays[i]
-	vpcmpeqb	ymm6, ymm6, ymm0				; birthdays[i] == 2 then -1 else 0
-	vpsubb		ymm5, ymm5, ymm6				; exactly_two_count_3++
-	%assign i i+32								; i += 32 Advance pointer to next chunk of days
+%rep DAYS_IN_YEAR / 128 + 1						; for (;;)
+	; Load 32 bytes from birthdays[i]
+	vmovdqu		ymm6, [rsp + i]					; Block 1
+	vmovdqu		ymm7, [rsp + i + 32]			; Block 2
+	vmovdqu		ymm8, [rsp + i + 64]			; Block 3
+	vmovdqu		ymm9, [rsp + i + 96]			; Block 4
+	; birthdays[i] == 2 then -1 else 0
+	vpcmpeqb	ymm6, ymm6, ymm0				; Block 1
+	vpcmpeqb	ymm7, ymm7, ymm0				; Block 2
+	vpcmpeqb	ymm8, ymm8, ymm0				; Block 3
+	vpcmpeqb	ymm9, ymm9, ymm0				; Block 4
+	; exactly_two_count++
+	vpsubb		ymm2, ymm2, ymm6				; Block 1
+	vpsubb		ymm3, ymm3, ymm7				; Block 2
+	vpsubb		ymm4, ymm4, ymm8				; Block 3
+	vpsubb		ymm5, ymm5, ymm9				; Block 4
+	%assign i i+128								; i += 128 Advance pointer to next chunk of days
 %endrep											; i < DAYS_IN_YEAR
 	; exactly_two_count Sum
 	vpaddb		ymm2, ymm2, ymm3				; exactly_two_count += exactly_two_count_1
