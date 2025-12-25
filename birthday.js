@@ -1,5 +1,4 @@
 // node birthday.js
-"use strict";
 const
 {
 	Worker,
