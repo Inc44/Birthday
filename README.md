@@ -116,7 +116,7 @@ This benchmark was conducted on various hardware configurations and programming 
 - Execution: `./birthday_opencl`
 
 #### OpenCL Compiled as C++ using Clang Compiler
-- Compilation: `clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math
+- Compilation: `clang++ -o birthday_opencl birthday_opencl.c -lOpenCL -O3 -ffast-math`
 - Execution: `./birthday_opencl`
 
 #### Vulkan Compiled as C using GNU Compiler
@@ -177,6 +177,24 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `zig build-exe birthday.zig -O ReleaseFast`
 - Execution: `./birthday`
 
+#### Assembly
+- Execution: `nasm -f elf64 birthday.asm && gcc -no-pie -o birthday birthday.o -lpthread -Ofast && ./birthday`
+
+#### Assembly with Optimizations
+- Execution: `nasm -f elf64 birthday_ofast.asm && gcc -no-pie -o birthday_ofast birthday_ofast.o -lpthread -Ofast && ./birthday_ofast`
+
+#### MySQL
+- Execution: `mysql -u root -p < birthday.sql`
+
+#### PHP
+- Execution: `php birthday.php`
+
+#### Bash/Shell
+- Execution: `bash birthday.sh`
+
+#### TypeScript
+- Execution: `tsc birthday.ts && node birthday.js`
+
 ### C/C++/OpenCL/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
@@ -184,7 +202,6 @@ This benchmark was conducted on various hardware configurations and programming 
 
 ## 🚧 TODO
 
-- [ ] **Assembly implementation**
 - [ ] **Create separate charts for each tested hardware**
 - [ ] **Highlight languages with color**
 - [ ] **Run tests on Windows**
