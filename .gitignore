@@ -11,6 +11,7 @@ birthday.o
 birthday_ofast
 birthday_ofast.o
 birthday_opencl
+birthday_openmp
 birthday_vulkan
 node_modules
 target

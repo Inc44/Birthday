@@ -195,7 +195,31 @@ This benchmark was conducted on various hardware configurations and programming 
 #### TypeScript
 - Execution: `tsc birthday.ts && node birthday.js`
 
-### C/C++/OpenCL/Vulkan Checked
+#### OpenMP Compiled as C using GNU Compiler
+- Compilation: `gcc -o birthday_openmp birthday_openmp.c -fopenmp -Ofast`
+- Execution: `./birthday_openmp`
+
+#### OpenMP Compiled as C++ using GNU Compiler
+- Compilation: `g++ -o birthday_openmp birthday_openmp.c -fopenmp -Ofast`
+- Execution: `./birthday_openmp`
+
+#### OpenMP Compiled as C using Zig Compiler
+- Compilation: `zig cc -o birthday_openmp birthday_openmp.c -fopenmp -Ofast`
+- Execution: `./birthday_openmp`
+
+#### OpenMP Compiled as C++ using Zig Compiler
+- Compilation: `zig c++ -o birthday_openmp birthday_openmp.c -fopenmp -Ofast`
+- Execution: `./birthday_openmp`
+
+#### OpenMP Compiled as C using Clang Compiler
+- Compilation: `clang -o birthday_openmp birthday_openmp.c -fopenmp -O3 -ffast-math`
+- Execution: `./birthday_openmp`
+
+#### OpenMP Compiled as C++ using Clang Compiler
+- Compilation: `clang++ -o birthday_openmp birthday_openmp.c -fopenmp -O3 -ffast-math`
+- Execution: `./birthday_openmp`
+
+### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
 - Execution: `./birthday`
