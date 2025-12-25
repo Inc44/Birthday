@@ -34,11 +34,28 @@ function simulate(int $simulations, int $thread_id, array &$success_count): void
 function main(): void
 {
 	$start_time = hrtime(true);
-	$success_count = array_fill(0, NUM_THREADS, 0);
+	$sockets = stream_socket_pair(
+		STREAM_PF_UNIX,
+		STREAM_SOCK_STREAM,
+		STREAM_IPPROTO_IP
+	);
 	for ($t = 0; $t < NUM_THREADS; $t++) {
-		simulate(TOTAL_SIMULATIONS, $t, $success_count);
+		if (pcntl_fork() == 0) {
+			fclose($sockets[1]);
+			$success_count = [];
+			simulate(TOTAL_SIMULATIONS, $t, $success_count);
+			fwrite($sockets[0], pack("N", $success_count[$t]));
+			exit(0);
+		}
 	}
-	$total_success_count = array_sum($success_count);
+	fclose($sockets[0]);
+	$total_success_count = 0;
+	for ($t = 0; $t < NUM_THREADS; $t++) {
+		$total_success_count += unpack("N", fread($sockets[1], 4))[1];
+	}
+	for ($t = 0; $t < NUM_THREADS; $t++) {
+		pcntl_wait($status);
+	}
 	$probability = $total_success_count / TOTAL_SIMULATIONS;
 	printf("Probability: %.9f\n", $probability);
 	$end_time = hrtime(true);
