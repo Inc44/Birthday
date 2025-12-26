@@ -219,6 +219,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `clang++ -o birthday_openmp birthday_openmp.c -fopenmp -O3 -ffast-math`
 - Execution: `./birthday_openmp`
 
+#### Fortran using GNU Compiler
+- Compilation: `gfortran -o birthday birthday.f -fopenmp -Ofast`
+- Execution: `./birthday`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
