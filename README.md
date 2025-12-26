@@ -223,6 +223,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `gfortran -o birthday birthday.f -fopenmp -Ofast`
 - Execution: `./birthday`
 
+#### COBOL
+- Compilation: `cobc -x -O3 -o birthday birthday.cob`
+- Execution: `./birthday`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
