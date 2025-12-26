@@ -219,7 +219,7 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `clang++ -o birthday_openmp birthday_openmp.c -fopenmp -O3 -ffast-math`
 - Execution: `./birthday_openmp`
 
-#### Fortran using GNU Compiler
+#### Fortran
 - Compilation: `gfortran -o birthday birthday.f -fopenmp -Ofast`
 - Execution: `./birthday`
 
