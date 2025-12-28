@@ -30,10 +30,9 @@ public class Birthday {
 					birthdays[birthday]++;
 				}
 				int exactlyTwoCount = 0;
-				for (int i = 0; i < DAYS_IN_YEAR; i++) {
+				for (int i = 0; i < DAYS_IN_YEAR; i++)
 					if (birthdays[i] == 2)
 						exactlyTwoCount++;
-				}
 				if (exactlyTwoCount == 1)
 					localSuccessCount++;
 			}
@@ -45,12 +44,11 @@ public class Birthday {
 		long startTime = System.nanoTime();
 		int[] successCount = new int[NUM_THREADS];
 		CountDownLatch latch = new CountDownLatch(NUM_THREADS);
-		for (int t = 0; t < NUM_THREADS; t++) {
+		for (int t = 0; t < NUM_THREADS; t++)
 			new Thread(new Worker(t, successCount, latch)).start();
-		}
 		try {
 			latch.await();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException exception) {
 			return;
 		}
 		int totalSuccessCount = 0;
