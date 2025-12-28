@@ -227,6 +227,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `cobc -x -O3 -o birthday birthday.cob`
 - Execution: `./birthday`
 
+#### Kotlin
+- Compilation: `kotlinc Birthday.kt -include-runtime -d Birthday.jar`
+- Execution: `java -jar Birthday.jar`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
