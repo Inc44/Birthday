@@ -22,8 +22,8 @@ multiplier, increment :: Word32
 multiplier = 1664525
 increment = 1013904223
 
-simulate :: Int -> Int -> IO Int
-simulate simulations threadId = do
+simulate :: Int -> IO Int
+simulate threadId = do
   seedTime <- getPOSIXTime
   let seed = round (seedTime * 1e9) :: Word64
   let state = fromIntegral (seed `xor` fromIntegral threadId) :: Word32
@@ -57,7 +57,7 @@ main = do
   threads <- replicateM numThreads newEmptyMVar
   successCount <- forM [0 .. numThreads - 1] $ \t -> do
       count <- newEmptyMVar
-      forkIO $ putMVar count =<< simulate totalSimulations t
+      forkIO $ putMVar count =<< simulate t
       return count
   totalSuccessCount <- sum <$> mapM takeMVar successCount
   let probability = fromIntegral totalSuccessCount / fromIntegral totalSimulations :: Double
