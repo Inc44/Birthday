@@ -242,6 +242,9 @@ This benchmark was conducted on various hardware configurations and programming 
 #### Prolog
 - Execution: `swipl -O -g main -t halt birthday.pl`
 
+#### Logtalk
+- Execution: `swilgt -O -q -t halt birthday.lgt`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
