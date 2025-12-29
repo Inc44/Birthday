@@ -231,6 +231,10 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `kotlinc Birthday.kt -include-runtime -d Birthday.jar`
 - Execution: `java -jar Birthday.jar`
 
+#### Haskell
+- Compilation: `ghc -O2 -threaded -o birthday Birthday.hs`
+- Execution: `./birthday +RTS -N`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
