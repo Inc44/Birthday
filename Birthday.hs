@@ -56,9 +56,9 @@ main = do
   startTime <- getPOSIXTime
   threads <- replicateM numThreads newEmptyMVar
   successCount <- forM [0 .. numThreads - 1] $ \t -> do
-      count <- newEmptyMVar
-      forkIO $ putMVar count =<< simulate t
-      return count
+    count <- newEmptyMVar
+    forkIO $ putMVar count =<< simulate t
+    return count
   totalSuccessCount <- sum <$> mapM takeMVar successCount
   let probability = fromIntegral totalSuccessCount / fromIntegral totalSimulations :: Double
   printf "Probability: %.9f\n" probability

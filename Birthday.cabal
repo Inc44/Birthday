@@ -1,0 +1,7 @@
+name:    Birthday
+version: 0
+
+library
+    exposed-modules:
+        Birthday
+        Birthday_ofast
