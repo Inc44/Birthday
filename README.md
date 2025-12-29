@@ -239,6 +239,9 @@ This benchmark was conducted on various hardware configurations and programming 
 - Compilation: `ghc -O2 -threaded -o birthday Birthday_ofast.hs`
 - Execution: `./birthday +RTS -N`
 
+#### Prolog
+- Execution: `swipl -O -g main -t halt birthday.pl`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
