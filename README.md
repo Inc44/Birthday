@@ -248,6 +248,9 @@ This benchmark was conducted on various hardware configurations and programming 
 #### Prolog with Optimizations
 - Execution: `swipl -O -g main -t halt birthday_ofast.pl`
 
+#### Common Lisp
+- Execution: `sbcl --script birthday.lisp`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
