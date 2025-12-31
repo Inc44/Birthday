@@ -251,6 +251,10 @@ This benchmark was conducted on various hardware configurations and programming 
 #### Common Lisp
 - Execution: `sbcl --script birthday.lisp`
 
+#### Visual Basic
+- Compilation: `vbnc -optimize Birthday.vb > /dev/null`
+- Execution: `mono ./Birthday.exe`
+
 ### C/C++/OpenCL/OpenMP/Vulkan Checked
 
 - Compilation: `gcc|g++|clang|clang++ -Wall -Wextra -g -fsanitize=address -fsanitize=undefined ... -o birthday birthday...`
